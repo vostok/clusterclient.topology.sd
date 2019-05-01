@@ -1,0 +1,17 @@
+notests *default:
+  build:
+    target: Vostok.ClusterClient.Topology.SD.sln
+    configuration: NoTests
+    tool:
+      name: dotnet
+
+  install:
+    - Vostok.ClusterClient.Topology.SD/bin/Release/netstandard2.0/Vostok.ClusterClient.Topology.SD.dll
+
+  deps:
+    - vostok.devtools
+
+full-build > notests:
+  build:
+    target: Vostok.ClusterClient.Topology.SD.sln
+    configuration: Release

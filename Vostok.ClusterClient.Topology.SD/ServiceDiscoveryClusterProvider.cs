@@ -10,6 +10,9 @@ using Vostok.ServiceDiscovery.Extensions;
 
 namespace Vostok.ClusterClient.Topology.SD
 {
+    /// <summary>
+    /// An implementation of <see cref="IClusterProvider"/> that fetches topology from ServiceDiscovery.
+    /// </summary>
     [PublicAPI]
     public class ServiceDiscoveryClusterProvider : IClusterProvider
     {
@@ -56,18 +59,18 @@ namespace Vostok.ClusterClient.Topology.SD
 
         private void LogTopologyNotFound()
         {
-            log.Warn("Topology of '{Application} application in '{Environment}' environment was not found in ServiceDiscovery.", application, environment);
+            log.Warn("Topology of '{Application}' application in '{Environment}' environment was not found in ServiceDiscovery.", application, environment);
         }
 
         private void LogResolvedReplicas(Uri[] replicas)
         {
             if (replicas.Length == 0)
             {
-                log.Info("Resolved ServiceDiscovery topology of '{Application} application in '{Environment}' to an empty set of replicas.", application, environment);
+                log.Info("Resolved ServiceDiscovery topology of '{Application}' application in '{Environment}' to an empty set of replicas.", application, environment);
             }
             else
             {
-                log.Info("Resolved ServiceDiscovery topology of '{Application} application in '{Environment}' to following replicas: \n\t{Replicas}",
+                log.Info("Resolved ServiceDiscovery topology of '{Application}' application in '{Environment}' to following replicas: \n\t{Replicas}",
                     application, environment, string.Join("\n\t", replicas as IEnumerable<Uri>));
             }
         }

@@ -25,9 +25,9 @@ namespace Vostok.Clusterclient.Topology.SD
 
         public ServiceDiscoveryClusterProvider([NotNull] IServiceLocator serviceLocator, [NotNull] string environment, [NotNull] string application, [CanBeNull] ILog log)
         {
-            this.serviceLocator = serviceLocator;
-            this.environment = environment;
-            this.application = application;
+            this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
+            this.environment = environment ?? throw new ArgumentNullException(nameof(environment));
+            this.application = application ?? throw new ArgumentNullException(nameof(application));
             this.log = log ?? LogProvider.Get();
 
             transform = new CachingTransform<IServiceTopology, Uri[]>(ParseReplicas);

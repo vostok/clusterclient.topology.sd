@@ -20,6 +20,7 @@
     <PackageTags>vostok vostok.clusterclient vostok.servicediscovery</PackageTags>
     <PackageReleaseNotes>https://github.com/vostok/clusterclient.topology.sd/blob/master/CHANGELOG.md</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/vostok/clusterclient.topology.sd</RepositoryUrl>
+    <RootNamespace>Vostok.Clusterclient.Topology.SD</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\vostok.commons.collections\Vostok.Commons.Collections\ByReferenceEqualityComparer.cs" Link="Commons\ByReferenceEqualityComparer.cs" />

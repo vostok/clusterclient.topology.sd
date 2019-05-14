@@ -8,7 +8,7 @@ using Vostok.Logging.Console;
 using Vostok.ServiceDiscovery.Abstractions;
 using Vostok.ServiceDiscovery.Extensions;
 
-namespace Vostok.ClusterClient.Topology.SD.Tests
+namespace Vostok.Clusterclient.Topology.SD.Tests
 {
     [TestFixture]
     internal class ServiceDiscoveryClusterProvider_Tests

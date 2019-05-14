@@ -3,7 +3,7 @@ using Vostok.Clusterclient.Core;
 using Vostok.Clusterclient.Core.Topology;
 using Vostok.ServiceDiscovery.Abstractions;
 
-namespace Vostok.ClusterClient.Topology.SD
+namespace Vostok.Clusterclient.Topology.SD
 {
     [PublicAPI]
     public static class IClusterClientConfigurationExtensions

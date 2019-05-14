@@ -8,7 +8,7 @@ using Vostok.Logging.Abstractions;
 using Vostok.ServiceDiscovery.Abstractions;
 using Vostok.ServiceDiscovery.Extensions;
 
-namespace Vostok.ClusterClient.Topology.SD
+namespace Vostok.Clusterclient.Topology.SD
 {
     /// <summary>
     /// An implementation of <see cref="IClusterProvider"/> that fetches topology from ServiceDiscovery.

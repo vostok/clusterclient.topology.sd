@@ -14,7 +14,7 @@ namespace Vostok.Clusterclient.Topology.SD
         public static void SetupServiceDiscoveryTopology(
             [NotNull] this IClusterClientConfiguration self,
             [NotNull] IServiceLocator serviceLocator,
-            [NotNull] string environment, 
+            [NotNull] string environment,
             [NotNull] string application)
         {
             self.ClusterProvider = new ServiceDiscoveryClusterProvider(serviceLocator, environment, application, self.Log);

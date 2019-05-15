@@ -70,8 +70,11 @@ namespace Vostok.Clusterclient.Topology.SD
             }
             else
             {
-                log.Info("Resolved ServiceDiscovery topology of '{Application}' application in '{Environment}' to following replicas: \n\t{Replicas}",
-                    application, environment, string.Join("\n\t", replicas as IEnumerable<Uri>));
+                log.Info(
+                    "Resolved ServiceDiscovery topology of '{Application}' application in '{Environment}' to following replicas: \n\t{Replicas}",
+                    application,
+                    environment,
+                    string.Join("\n\t", replicas as IEnumerable<Uri>));
             }
         }
 

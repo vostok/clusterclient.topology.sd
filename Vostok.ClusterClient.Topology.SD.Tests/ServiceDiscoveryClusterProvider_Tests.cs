@@ -13,24 +13,24 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
     [TestFixture]
     internal class ServiceDiscoveryClusterProvider_Tests
     {
+        private readonly ILog log = new SynchronousConsoleLog();
+
+        private readonly Uri replica1 = new Uri("http://replica1:123/v1/");
+        private readonly Uri replica2 = new Uri("http://replica2:456/v1/");
         private IServiceLocator serviceLocator;
         private ServiceDiscoveryClusterProvider provider;
-        private readonly ILog log = new SynchronousConsoleLog();
         private string environment;
         private string application;
         private IServiceTopology topology;
         private IServiceTopologyProperties properties;
         private Uri[] blacklist;
 
-        private readonly Uri replica1 = new Uri("http://replica1:123/v1/");
-        private readonly Uri replica2 = new Uri("http://replica2:456/v1/");
-
         [SetUp]
         public void SetUp()
         {
             environment = "environment";
             application = "application";
-            
+
             serviceLocator = Substitute.For<IServiceLocator>();
             serviceLocator.Locate(environment, application).Returns(_ => topology);
 
@@ -74,7 +74,7 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             topology.Replicas.Returns(new[] {replica1, replica2});
             topology.Properties.Returns(properties);
 
-            provider.GetCluster().Should().BeEquivalentTo(new[] { replica1, replica2 }.Cast<object>());
+            provider.GetCluster().Should().BeEquivalentTo(new[] {replica1, replica2}.Cast<object>());
         }
 
         [Test]
@@ -82,13 +82,13 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         {
             topology = Substitute.For<IServiceTopology>();
             topology.Properties.Returns(properties);
-            topology.Replicas.Returns(new[] { replica1, replica2 });
-            provider.GetCluster().Should().BeEquivalentTo(new[] { replica1, replica2 }.Cast<object>());
+            topology.Replicas.Returns(new[] {replica1, replica2});
+            provider.GetCluster().Should().BeEquivalentTo(new[] {replica1, replica2}.Cast<object>());
 
             topology = Substitute.For<IServiceTopology>();
             topology.Properties.Returns(properties);
-            topology.Replicas.Returns(new[] { replica2 });
-            provider.GetCluster().Should().BeEquivalentTo(new[] { replica2 }.Cast<object>());
+            topology.Replicas.Returns(new[] {replica2});
+            provider.GetCluster().Should().BeEquivalentTo(new[] {replica2}.Cast<object>());
         }
 
         [Test]
@@ -96,11 +96,11 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         {
             topology = Substitute.For<IServiceTopology>();
             topology.Properties.Returns(properties);
-            topology.Replicas.Returns(new[] { replica1, replica2 });
+            topology.Replicas.Returns(new[] {replica1, replica2});
 
-            blacklist = new[] { replica2 };
+            blacklist = new[] {replica2};
 
-            provider.GetCluster().Should().BeEquivalentTo(new[] { replica1 }.Cast<object>());
+            provider.GetCluster().Should().BeEquivalentTo(new[] {replica1}.Cast<object>());
         }
 
         [Test]
@@ -108,9 +108,9 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         {
             topology = Substitute.For<IServiceTopology>();
             topology.Properties.Returns(properties);
-            topology.Replicas.Returns(new[] { replica1, replica2 });
+            topology.Replicas.Returns(new[] {replica1, replica2});
 
-            blacklist = new[] { replica2, replica1 };
+            blacklist = new[] {replica2, replica1};
 
             provider.GetCluster().Should().BeEmpty();
         }

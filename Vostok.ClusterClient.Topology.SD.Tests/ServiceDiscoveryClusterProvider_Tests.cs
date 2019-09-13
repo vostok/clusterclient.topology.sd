@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using NSubstitute;
@@ -6,6 +7,7 @@ using NUnit.Framework;
 using Vostok.Logging.Abstractions;
 using Vostok.Logging.Console;
 using Vostok.ServiceDiscovery.Abstractions;
+using Vostok.ServiceDiscovery.Abstractions.Models;
 using Vostok.ServiceDiscovery.Extensions;
 
 namespace Vostok.Clusterclient.Topology.SD.Tests
@@ -22,7 +24,6 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         private string environment;
         private string application;
         private IServiceTopology topology;
-        private IServiceTopologyProperties properties;
         private Uri[] blacklist;
 
         [SetUp]
@@ -37,17 +38,6 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             provider = new ServiceDiscoveryClusterProvider(serviceLocator, environment, application, log);
 
             blacklist = null;
-
-            properties = Substitute.For<IServiceTopologyProperties>();
-            properties.TryGetValue(IServiceTopologyPropertiesExtensions.BlacklistProperty, out var value)
-                .Returns(
-                    x =>
-                    {
-                        if (blacklist == null)
-                            return false;
-                        x[1] = string.Join(IServiceTopologyPropertiesExtensions.BlacklistItemSeparator, blacklist.Select(xx => xx.ToString()));
-                        return true;
-                    });
         }
 
         [Test]
@@ -60,9 +50,7 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         [Test]
         public void Should_return_empty_list_for_empty_replicas()
         {
-            topology = Substitute.For<IServiceTopology>();
-            topology.Replicas.Returns(new Uri[0]);
-            topology.Properties.Returns(properties);
+            topology = ServiceTopology.Build(new List<Uri>(), null);
 
             provider.GetCluster().Should().BeEmpty();
         }
@@ -70,35 +58,30 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         [Test]
         public void Should_return_replicas()
         {
-            topology = Substitute.For<IServiceTopology>();
-            topology.Replicas.Returns(new[] {replica1, replica2});
-            topology.Properties.Returns(properties);
-
+            topology = ServiceTopology.Build(new[] {replica1, replica2}, null);
             provider.GetCluster().Should().BeEquivalentTo(new[] {replica1, replica2}.Cast<object>());
         }
 
         [Test]
         public void Should_return_new_replicas_from_new_topology()
         {
-            topology = Substitute.For<IServiceTopology>();
-            topology.Properties.Returns(properties);
-            topology.Replicas.Returns(new[] {replica1, replica2});
+            topology = ServiceTopology.Build(new[] {replica1, replica2}, null);
             provider.GetCluster().Should().BeEquivalentTo(new[] {replica1, replica2}.Cast<object>());
 
-            topology = Substitute.For<IServiceTopology>();
-            topology.Properties.Returns(properties);
-            topology.Replicas.Returns(new[] {replica2});
+            topology = ServiceTopology.Build(new[] {replica2}, null);
             provider.GetCluster().Should().BeEquivalentTo(new[] {replica2}.Cast<object>());
         }
 
         [Test]
         public void Should_filter_blacklisted_replicas()
         {
-            topology = Substitute.For<IServiceTopology>();
-            topology.Properties.Returns(properties);
-            topology.Replicas.Returns(new[] {replica1, replica2});
-
             blacklist = new[] {replica2};
+
+            var applicationInfo = new ApplicationInfo(environment, application, null);
+
+            topology = ServiceTopology.Build(
+                new[] {replica1, replica2},
+                applicationInfo.Properties.SetBlacklist(blacklist));
 
             provider.GetCluster().Should().BeEquivalentTo(new[] {replica1}.Cast<object>());
         }
@@ -106,11 +89,13 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         [Test]
         public void Should_filter_all_blacklisted_replicas()
         {
-            topology = Substitute.For<IServiceTopology>();
-            topology.Properties.Returns(properties);
-            topology.Replicas.Returns(new[] {replica1, replica2});
-
             blacklist = new[] {replica2, replica1};
+
+            var applicationInfo = new ApplicationInfo(environment, application, null);
+
+            topology = ServiceTopology.Build(
+                new[] {replica1, replica2},
+                applicationInfo.Properties.SetBlacklist(blacklist));
 
             provider.GetCluster().Should().BeEmpty();
         }

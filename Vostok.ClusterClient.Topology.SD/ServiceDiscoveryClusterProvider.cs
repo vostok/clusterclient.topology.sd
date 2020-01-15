@@ -4,6 +4,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Vostok.Clusterclient.Core.Topology;
 using Vostok.Commons.Collections;
+using Vostok.Commons.Helpers.Comparers;
 using Vostok.Logging.Abstractions;
 using Vostok.ServiceDiscovery.Abstractions;
 using Vostok.ServiceDiscovery.Extensions;
@@ -20,6 +21,7 @@ namespace Vostok.Clusterclient.Topology.SD
         private readonly string environment;
         private readonly string application;
         private readonly ILog log;
+        private volatile Uri[] resolvedReplicas;
 
         private readonly CachingTransform<IServiceTopology, Uri[]> transform;
 
@@ -46,13 +48,17 @@ namespace Vostok.Clusterclient.Topology.SD
             }
 
             var blacklist = topology.Properties.GetBlacklist();
-            var result = topology.Replicas
+            var replicas = topology.Replicas
                 .Except(blacklist)
                 .ToArray();
 
-            LogResolvedReplicas(result);
+            if (!ListComparer<Uri>.Instance.Equals(resolvedReplicas, replicas))
+            {
+                LogResolvedReplicas(replicas);
+                resolvedReplicas = replicas;
+            }
 
-            return result;
+            return replicas;
         }
 
         #region Logging

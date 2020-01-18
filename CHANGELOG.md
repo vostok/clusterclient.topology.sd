@@ -1,3 +1,7 @@
+## 0.1.2 (18-01-2020):
+
+Only log resolved replicas when meaningful changes happen.
+
 ## 0.1.1 (14-18-2019):
 
 Fill `TargetEnvironment` and `TargetServiceName`.

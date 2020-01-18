@@ -21,6 +21,7 @@ notests *default:
 full-build > notests:
   deps:
     - vostok.logging.console
+
   build:
     target: Vostok.ClusterClient.Topology.SD.sln
     configuration: Release

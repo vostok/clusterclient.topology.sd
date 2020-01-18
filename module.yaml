@@ -7,15 +7,16 @@ notests *default:
 
   install:
     - Vostok.ClusterClient.Topology.SD/bin/Release/netstandard2.0/Vostok.ClusterClient.Topology.SD.dll
+    - module vostok.servicediscovery.abstractions
 
   deps:
     - vostok.clusterclient.core
-    - vostok.servicediscovery.extensions
-    - vostok.servicediscovery.abstractions
-    - vostok.logging.abstractions
-    - vostok.devtools
     - vostok.commons.collections/src
     - vostok.commons.helpers/src
+    - vostok.devtools
+    - vostok.logging.abstractions
+    - vostok.servicediscovery.abstractions
+    - vostok.servicediscovery.extensions
 
 full-build > notests:
   deps:

@@ -99,5 +99,24 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
 
             provider.GetCluster().Should().BeEmpty();
         }
+
+        [Test]
+        public void Should_filter_blacklisted_replicas_with_FQDN()
+        {
+            var r1 = new Uri("http://razr01:80");
+            var r2 = new Uri("http://razr02:80");
+            var r3 = new Uri("http://razr03:80");
+            var r4 = new Uri("http://razr02.domain.whatever:80");
+
+            blacklist = new[] {r4};
+
+            var applicationInfo = new ApplicationInfo(environment, application, null);
+
+            topology = ServiceTopology.Build(
+                new[] { r1, r2, r3, r4 },
+                applicationInfo.Properties.SetBlacklist(blacklist));
+
+            provider.GetCluster().Should().Equal(r1, r3);
+        }
     }
 }

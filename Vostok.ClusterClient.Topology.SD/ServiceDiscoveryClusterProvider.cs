@@ -8,6 +8,7 @@ using Vostok.Commons.Helpers.Comparers;
 using Vostok.Logging.Abstractions;
 using Vostok.ServiceDiscovery.Abstractions;
 using Vostok.ServiceDiscovery.Extensions;
+using Vostok.ServiceDiscovery.Extensions.Helpers;
 
 namespace Vostok.Clusterclient.Topology.SD
 {
@@ -17,6 +18,8 @@ namespace Vostok.Clusterclient.Topology.SD
     [PublicAPI]
     public class ServiceDiscoveryClusterProvider : IClusterProvider
     {
+        private static readonly IEqualityComparer<IReadOnlyList<Uri>> ReplicaListComparer = new ListComparer<Uri>(ReplicaComparer.Instance);
+
         private readonly IServiceLocator serviceLocator;
         private readonly string environment;
         private readonly string application;
@@ -49,10 +52,10 @@ namespace Vostok.Clusterclient.Topology.SD
 
             var blacklist = topology.Properties.GetBlacklist();
             var replicas = topology.Replicas
-                .Except(blacklist)
+                .Except(blacklist, ReplicaComparer.Instance)
                 .ToArray();
 
-            if (!ListComparer<Uri>.Instance.Equals(resolvedReplicas, replicas))
+            if (!ReplicaListComparer.Equals(resolvedReplicas, replicas))
             {
                 LogResolvedReplicas(replicas);
                 resolvedReplicas = replicas;

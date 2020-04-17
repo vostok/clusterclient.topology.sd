@@ -12,12 +12,11 @@ notests *default:
   deps:
     - vostok.clusterclient.core
     - vostok.commons.collections/src
-    - vostok.commons.helpers/src
+    - vostok.commons.helpers/src@move-replica-comparer
     - vostok.devtools
     - vostok.logging.abstractions
     - vostok.servicediscovery.abstractions
-    - vostok.servicediscovery.extensions
-
+    - vostok.servicediscovery.extensions@move-replica-comparer
 full-build > notests:
   deps:
     - vostok.logging.console

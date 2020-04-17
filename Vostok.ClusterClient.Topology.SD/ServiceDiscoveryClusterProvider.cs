@@ -5,10 +5,10 @@ using JetBrains.Annotations;
 using Vostok.Clusterclient.Core.Topology;
 using Vostok.Commons.Collections;
 using Vostok.Commons.Helpers.Comparers;
+using Vostok.Commons.Helpers.Topology;
 using Vostok.Logging.Abstractions;
 using Vostok.ServiceDiscovery.Abstractions;
 using Vostok.ServiceDiscovery.Extensions;
-using Vostok.ServiceDiscovery.Extensions.Helpers;
 
 namespace Vostok.Clusterclient.Topology.SD
 {

@@ -26,7 +26,7 @@
     <Compile Include="..\..\vostok.commons.collections\Vostok.Commons.Collections\ByReferenceEqualityComparer.cs" Link="Commons\ByReferenceEqualityComparer.cs" />
     <Compile Include="..\..\vostok.commons.collections\Vostok.Commons.Collections\CachingTransform.cs" Link="Commons\CachingTransform.cs" />
     <Compile Include="..\..\vostok.commons.helpers\Vostok.Commons.Helpers\Comparers\ListComparer.cs" Link="Commons\ListComparer.cs" />
-	<Compile Include="..\..\vostok.commons.Helpers\Vostok.Commons.Helpers\Topology\ReplicaComparer.cs" Link="Commons\ReplicaComparer.cs" />
+	<Compile Include="..\..\vostok.commons.helpers\Vostok.Commons.Helpers\Topology\ReplicaComparer.cs" Link="Commons\ReplicaComparer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Vostok.Logging.Abstractions">

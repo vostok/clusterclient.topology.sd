@@ -1,3 +1,7 @@
+## 0.1.4 (20-04-2020):
+
+ReplicaComparer moved to Vostok.Commons.Helpers
+
 ## 0.1.3 (26-02-2020):
 
 Replica blacklist now tolerates FQDNs by using ReplicaComparer.

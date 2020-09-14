@@ -14,10 +14,10 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
     {
         private const string Application = "application";
 
-        [TestCase(null, "http://default_topology-replica1:80", "default")]
-        [TestCase("topology1", "http://topology1-replica1:80", "topology1")]
-        [TestCase("topology2", "http://topology2-replica1:80", "topology2")]
-        public void Should_take_target_environment_from_flowing_context(string forcedEnvironment, string expectedReplica, string expectedEnvironment)
+        [TestCase(null, "http://default_topology-replica1:80")]
+        [TestCase("topology1", "http://topology1-replica1:80")]
+        [TestCase("topology2", "http://topology2-replica1:80")]
+        public void Should_take_target_environment_from_flowing_context(string forcedEnvironment, string expectedReplica)
         {
             FlowingContext.Properties.Clear();
             FlowingContext.Properties.Set(ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment, forcedEnvironment);
@@ -25,9 +25,24 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             var clusterClientConfig = Substitute.For<IClusterClientConfiguration>();
             clusterClientConfig.SetupServiceDiscoveryTopology(GetMultipleEnvironmentLocator(), Application);
 
-            clusterClientConfig.TargetEnvironment.Should().Be(expectedEnvironment);
             clusterClientConfig.TargetServiceName.Should().Be(Application);
             clusterClientConfig.ClusterProvider.GetCluster().Should().Equal(new Uri(expectedReplica));
+        }
+
+        [Test]
+        public void Should_take_target_environment_from_flowing_context_on_each_request()
+        {
+            FlowingContext.Properties.Clear();
+            var clusterClientConfig = Substitute.For<IClusterClientConfiguration>();
+            clusterClientConfig.SetupServiceDiscoveryTopology(GetMultipleEnvironmentLocator(), Application);
+
+            FlowingContext.Properties.Set(ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment, "topology1");
+            var actualCLuster1 = clusterClientConfig.ClusterProvider.GetCluster();
+            FlowingContext.Properties.Set(ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment, "topology2");
+            var actualCLuster2 = clusterClientConfig.ClusterProvider.GetCluster();
+
+            actualCLuster1.Should().Equal(new Uri("http://topology1-replica1:80"));
+            actualCLuster2.Should().Equal(new Uri("http://topology2-replica1:80"));
         }
 
         private IServiceLocator GetMultipleEnvironmentLocator()

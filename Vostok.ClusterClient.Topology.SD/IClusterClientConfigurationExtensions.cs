@@ -32,9 +32,8 @@ namespace Vostok.Clusterclient.Topology.SD
             [NotNull] IServiceLocator serviceLocator,
             [NotNull] string application)
         {
-            var environment = FlowingContext.Properties.Get<string>(ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment)
-                              ?? ServiceDiscoveryConstants.DefaultEnvironment;
-            self.SetupServiceDiscoveryTopology(serviceLocator, environment, application);
+            self.ClusterProvider = new ServiceDiscoveryClusterProvider(serviceLocator, application, self.Log);
+            self.TargetServiceName = application;
         }
     }
 }

@@ -30,9 +30,9 @@ namespace Vostok.Clusterclient.Topology.SD
         }
 
         private readonly IServiceLocator serviceLocator;
-        private readonly string environment;
         private readonly string application;
         private readonly ILog log;
+
         private volatile Uri[] resolvedReplicas;
 
         private readonly CachingTransform<IServiceTopology, Uri[]> transform;
@@ -42,25 +42,24 @@ namespace Vostok.Clusterclient.Topology.SD
             this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
             this.application = application ?? throw new ArgumentNullException(nameof(application));
             this.log = log ?? LogProvider.Get();
-
-            environment = FlowingContext.Properties.Get<string>(ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment)
-                          ?? ServiceDiscoveryConstants.DefaultEnvironment;
-
             transform = new CachingTransform<IServiceTopology, Uri[]>(ParseReplicas);
         }
 
         public ServiceDiscoveryClusterProvider([NotNull] IServiceLocator serviceLocator, [NotNull] string environment, [NotNull] string application, [CanBeNull] ILog log)
         {
+            if (environment == null)
+                throw new ArgumentNullException(nameof(environment));
+
+            getEnvironment = () => environment;
+
             this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
-            this.environment = environment ?? throw new ArgumentNullException(nameof(environment));
             this.application = application ?? throw new ArgumentNullException(nameof(application));
             this.log = log ?? LogProvider.Get();
 
             transform = new CachingTransform<IServiceTopology, Uri[]>(ParseReplicas);
         }
 
-        public IList<Uri> GetCluster()
-            => transform.Get(serviceLocator.Locate(environment, application));
+        public IList<Uri> GetCluster() => transform.Get(serviceLocator.Locate(getEnvironment(), application));
 
         [CanBeNull]
         private Uri[] ParseReplicas([CanBeNull] IServiceTopology topology)
@@ -85,25 +84,28 @@ namespace Vostok.Clusterclient.Topology.SD
             return replicas;
         }
 
+        private readonly Func<string> getEnvironment = () => FlowingContext.Properties.Get<string>(ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment)
+                                                             ?? ServiceDiscoveryConstants.DefaultEnvironment;
+
         #region Logging
 
         private void LogTopologyNotFound()
         {
-            log.Warn("Topology of '{Application}' application in '{Environment}' environment was not found in ServiceDiscovery.", application, environment);
+            log.Warn("Topology of '{Application}' application in '{Environment}' environment was not found in ServiceDiscovery.", application, getEnvironment());
         }
 
         private void LogResolvedReplicas(Uri[] replicas)
         {
             if (replicas.Length == 0)
             {
-                log.Info("Resolved ServiceDiscovery topology of '{Application}' application in '{Environment}' to an empty set of replicas.", application, environment);
+                log.Info("Resolved ServiceDiscovery topology of '{Application}' application in '{Environment}' to an empty set of replicas.", application, getEnvironment());
             }
             else
             {
                 log.Info(
                     "Resolved ServiceDiscovery topology of '{Application}' application in '{Environment}' to following replicas: \n\t{Replicas}",
                     application,
-                    environment,
+                    getEnvironment(),
                     string.Join("\n\t", replicas as IEnumerable<Uri>));
             }
         }

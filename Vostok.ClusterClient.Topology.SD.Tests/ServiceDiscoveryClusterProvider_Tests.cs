@@ -135,6 +135,21 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             actual.Should().Equal(new Uri(expectedReplica));
         }
 
+        [Test]
+        public void Should_take_target_environment_from_flowing_context_on_each_request()
+        {
+            FlowingContext.Properties.Clear();
+            var provider = new ServiceDiscoveryClusterProvider(GetMultipleEnvironmentLocator(), application, log);
+
+            FlowingContext.Properties.Set(ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment, "topology1");
+            var actualCluster1 = provider.GetCluster();
+            FlowingContext.Properties.Set(ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment, "topology2");
+            var actualCluster2 = provider.GetCluster();
+
+            actualCluster1.Should().Equal(new Uri("http://topology1-replica1:80"));
+            actualCluster2.Should().Equal(new Uri("http://topology2-replica1:80"));
+        }
+
         private IServiceLocator GetMultipleEnvironmentLocator()
         {
             var topology1 = ServiceTopology.Build(new[] {new Uri("http://topology1-replica1:80")}, null);

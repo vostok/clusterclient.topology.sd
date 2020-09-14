@@ -6,6 +6,7 @@ using Vostok.Clusterclient.Core.Topology;
 using Vostok.Commons.Collections;
 using Vostok.Commons.Helpers.Comparers;
 using Vostok.Commons.Helpers.Topology;
+using Vostok.Context;
 using Vostok.Logging.Abstractions;
 using Vostok.ServiceDiscovery.Abstractions;
 using Vostok.ServiceDiscovery.Extensions;
@@ -20,6 +21,14 @@ namespace Vostok.Clusterclient.Topology.SD
     {
         private static readonly IEqualityComparer<IReadOnlyList<Uri>> ReplicaListComparer = new ListComparer<Uri>(ReplicaComparer.Instance);
 
+        static ServiceDiscoveryClusterProvider()
+        {
+            FlowingContext.Configuration.RegisterDistributedProperty(
+                ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment,
+                ContextSerializers.String
+            );
+        }
+
         private readonly IServiceLocator serviceLocator;
         private readonly string environment;
         private readonly string application;
@@ -27,6 +36,18 @@ namespace Vostok.Clusterclient.Topology.SD
         private volatile Uri[] resolvedReplicas;
 
         private readonly CachingTransform<IServiceTopology, Uri[]> transform;
+
+        public ServiceDiscoveryClusterProvider([NotNull] IServiceLocator serviceLocator, [NotNull] string application, [CanBeNull] ILog log)
+        {
+            this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
+            this.application = application ?? throw new ArgumentNullException(nameof(application));
+            this.log = log ?? LogProvider.Get();
+
+            environment = FlowingContext.Properties.Get<string>(ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment)
+                          ?? ServiceDiscoveryConstants.DefaultEnvironment;
+
+            transform = new CachingTransform<IServiceTopology, Uri[]>(ParseReplicas);
+        }
 
         public ServiceDiscoveryClusterProvider([NotNull] IServiceLocator serviceLocator, [NotNull] string environment, [NotNull] string application, [CanBeNull] ILog log)
         {

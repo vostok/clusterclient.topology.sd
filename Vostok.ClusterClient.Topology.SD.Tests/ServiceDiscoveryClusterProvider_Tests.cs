@@ -4,6 +4,8 @@ using System.Linq;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
+using Vostok.Clusterclient.Core;
+using Vostok.Context;
 using Vostok.Logging.Abstractions;
 using Vostok.Logging.Console;
 using Vostok.ServiceDiscovery.Abstractions;
@@ -117,6 +119,33 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
                 applicationInfo.Properties.SetBlacklist(blacklist));
 
             provider.GetCluster().Should().Equal(r1, r3);
+        }
+
+        [TestCase(null, "http://default_topology-replica1:80")]
+        [TestCase("topology1", "http://topology1-replica1:80")]
+        [TestCase("topology2", "http://topology2-replica1:80")]
+        public void Should_take_target_environment_from_flowing_context(string forcedEnvironment, string expectedReplica)
+        {
+            FlowingContext.Properties.Clear();
+            FlowingContext.Properties.Set(ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment, forcedEnvironment);
+            var provider = new ServiceDiscoveryClusterProvider(GetMultipleEnvironmentLocator(), application, log);
+
+            var actual = provider.GetCluster();
+
+            actual.Should().Equal(new Uri(expectedReplica));
+        }
+
+        private IServiceLocator GetMultipleEnvironmentLocator()
+        {
+            var topology1 = ServiceTopology.Build(new[] {new Uri("http://topology1-replica1:80")}, null);
+            var topology2 = ServiceTopology.Build(new[] {new Uri("http://topology2-replica1:80")}, null);
+            var defaultTopology = ServiceTopology.Build(new[] {new Uri("http://default_topology-replica1:80")}, null);
+
+            var locator = Substitute.For<IServiceLocator>();
+            locator.Locate("topology1", application).Returns(_ => topology1);
+            locator.Locate("topology2", application).Returns(_ => topology2);
+            locator.Locate("default", application).Returns(_ => defaultTopology);
+            return locator;
         }
     }
 }

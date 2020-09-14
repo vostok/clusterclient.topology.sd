@@ -19,6 +19,9 @@
     <ProjectReference Include="..\Vostok.ClusterClient.Topology.SD\Vostok.ClusterClient.Topology.SD.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Vostok.ClusterClient.Core, Version=0.1.21.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\vostok.clusterclient.core\Vostok.ClusterClient.Core\bin\Release\netstandard2.0\Vostok.ClusterClient.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Vostok.ServiceDiscovery.Abstractions">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\vostok.servicediscovery.abstractions\Vostok.ServiceDiscovery.Abstractions\bin\Release\netstandard2.0\Vostok.ServiceDiscovery.Abstractions.dll</HintPath>
@@ -34,6 +37,10 @@
     <Reference Include="Vostok.ServiceDiscovery.Extensions">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\vostok.servicediscovery.extensions\Vostok.ServiceDiscovery.Extensions\bin\Release\netstandard2.0\Vostok.ServiceDiscovery.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Vostok.Context">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\vostok.context\Vostok.Context\bin\Release\netstandard2.0\Vostok.Context.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

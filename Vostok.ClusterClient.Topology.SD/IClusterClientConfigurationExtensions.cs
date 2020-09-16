@@ -27,7 +27,9 @@ namespace Vostok.Clusterclient.Topology.SD
 
         /// <summary>
         /// Sets up an <see cref="IClusterProvider"/> that will fetch replicas of <paramref name="application"/>from ServiceDiscovery with given <paramref name="serviceLocator"/>.
-        /// The target environment will be taken from `forced.sd.environment` distributed property (<see cref="FlowingContext.Properties"/>) or will be considered 'default'.
+        /// The target environment will be taken from environmentProvider, which defaults to
+        /// <see cref="CompositeTargetEnvironmentProvider"/> consisting of <see cref="FlowingContextTargetEnvironmentProvider"/>
+        /// and <see cref="FixedTargetEnvironmentProvider"/> targeting <paramref name="defaultEnvironment"/>.
         /// </summary>
         public static void SetupServiceDiscoveryTopology(
             [NotNull] this IClusterClientConfiguration self,

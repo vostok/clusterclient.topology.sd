@@ -6,7 +6,5 @@
         {
             public const string ForcedEnvironment = "forced.sd.environment";
         }
-
-        public const string DefaultEnvironment = "default";
     }
 }

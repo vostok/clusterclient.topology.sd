@@ -22,11 +22,11 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             FlowingContext.Properties.Set(ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment, forcedEnvironment);
 
             var clusterClientConfig = Substitute.For<IClusterClientConfiguration>();
-            clusterClientConfig.SetupServiceDiscoveryTopology(GetMultipleEnvironmentLocator(), Application);
+            clusterClientConfig.SetupServiceDiscoveryTopologyWithContextForcing(GetMultipleEnvironmentLocator(), "default", Application);
 
             clusterClientConfig.TargetServiceName.Should().Be(Application);
             clusterClientConfig.ClusterProvider.GetCluster().Should().Equal(new Uri(expectedReplica));
-            clusterClientConfig.TargetEnvironmentProvider.Find().Should().Be(forcedEnvironment);
+            clusterClientConfig.TargetEnvironmentProvider().Should().Be(forcedEnvironment);
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         {
             FlowingContext.Properties.Clear();
             var clusterClientConfig = Substitute.For<IClusterClientConfiguration>();
-            clusterClientConfig.SetupServiceDiscoveryTopology(GetMultipleEnvironmentLocator(), Application);
+            clusterClientConfig.SetupServiceDiscoveryTopologyWithContextForcing(GetMultipleEnvironmentLocator(), "default", Application);
 
             FlowingContext.Properties.Set(ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment, "topology1");
             var actualCLuster1 = clusterClientConfig.ClusterProvider.GetCluster();
@@ -50,25 +50,12 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         {
             FlowingContext.Properties.Clear();
             var clusterClientConfig = Substitute.For<IClusterClientConfiguration>();
-            clusterClientConfig.SetupServiceDiscoveryTopology(GetMultipleEnvironmentLocator(), Application);
+            clusterClientConfig.SetupServiceDiscoveryTopologyWithContextForcing(GetMultipleEnvironmentLocator(), "default", Application);
 
             var actualCLuster = clusterClientConfig.ClusterProvider.GetCluster();
-            clusterClientConfig.TargetEnvironmentProvider.Find().Should().Be(ServiceDiscoveryConstants.DefaultEnvironment);
+            clusterClientConfig.TargetEnvironmentProvider().Should().Be("default");
 
             actualCLuster.Should().Equal(new Uri("http://default_topology-replica1:80"));
-        }
-
-        [Test]
-        public void Should_fallback_to_explicit_default_environment_if_flowing_context_is_not_specified()
-        {
-            FlowingContext.Properties.Clear();
-            var clusterClientConfig = Substitute.For<IClusterClientConfiguration>();
-            clusterClientConfig.SetupServiceDiscoveryTopology(GetMultipleEnvironmentLocator(), Application, null, "topology3");
-
-            var actualCLuster = clusterClientConfig.ClusterProvider.GetCluster();
-
-            actualCLuster.Should().Equal(new Uri("http://topology3-replica1:80"));
-            clusterClientConfig.TargetEnvironmentProvider.Find().Should().Be("topology3");
         }
 
         private IServiceLocator GetMultipleEnvironmentLocator()
@@ -82,7 +69,7 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             serviceLocator.Locate("topology1", Application).Returns(_ => topology1);
             serviceLocator.Locate("topology2", Application).Returns(_ => topology2);
             serviceLocator.Locate("topology3", Application).Returns(_ => topology3);
-            serviceLocator.Locate(ServiceDiscoveryConstants.DefaultEnvironment, Application).Returns(_ => defaultTopology);
+            serviceLocator.Locate("default", Application).Returns(_ => defaultTopology);
             return serviceLocator;
         }
     }

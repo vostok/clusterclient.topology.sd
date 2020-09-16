@@ -4,9 +4,6 @@ using System.Linq;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
-using Vostok.Clusterclient.Core;
-using Vostok.Clusterclient.Core.Topology.TargetEnvironment;
-using Vostok.Context;
 using Vostok.Logging.Abstractions;
 using Vostok.Logging.Console;
 using Vostok.ServiceDiscovery.Abstractions;
@@ -120,46 +117,6 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
                 applicationInfo.Properties.SetBlacklist(blacklist));
 
             provider.GetCluster().Should().Equal(r1, r3);
-        }
-
-        [Test]
-        public void Should_take_target_environment_from_provider_on_each_request()
-        {
-            string environment = null;
-            var environmentProvider = new AdHocTargetEnvironmentProvider(() => environment);
-            var serviceLocator = GetMultipleEnvironmentLocator();
-            var provider = new ServiceDiscoveryClusterProvider(serviceLocator, environmentProvider, application, log);
-
-            environment = "topology1";
-            var actualCluster1 = provider.GetCluster();
-            environment = "topology2";
-            var actualCluster2 = provider.GetCluster();
-
-            actualCluster1.Should().Equal(new Uri("http://topology1-replica1:80"));
-            actualCluster2.Should().Equal(new Uri("http://topology2-replica1:80"));
-        }
-
-        [Test]
-        public void Should_throw_exception_if_explicit_environment_provider_returned_null()
-        {
-            var environmentProvider = new AdHocTargetEnvironmentProvider(() => null);
-            var serviceLocator = GetMultipleEnvironmentLocator();
-            var provider = new ServiceDiscoveryClusterProvider(serviceLocator, environmentProvider, application, log);
-
-            Assert.Throws<Exception>(() => provider.GetCluster());
-        }
-
-        private IServiceLocator GetMultipleEnvironmentLocator()
-        {
-            var topology1 = ServiceTopology.Build(new[] {new Uri("http://topology1-replica1:80")}, null);
-            var topology2 = ServiceTopology.Build(new[] {new Uri("http://topology2-replica1:80")}, null);
-            var defaultTopology = ServiceTopology.Build(new[] {new Uri("http://default_topology-replica1:80")}, null);
-
-            var locator = Substitute.For<IServiceLocator>();
-            locator.Locate("topology1", application).Returns(_ => topology1);
-            locator.Locate("topology2", application).Returns(_ => topology2);
-            locator.Locate("default", application).Returns(_ => defaultTopology);
-            return locator;
         }
     }
 }

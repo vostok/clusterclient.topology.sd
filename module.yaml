@@ -11,7 +11,7 @@ notests *default:
 
   deps:
     - vostok.context
-    - vostok.clusterclient.core
+    - vostok.clusterclient.core@INFRA-3720
     - vostok.commons.collections/src
     - vostok.commons.helpers/src
     - vostok.devtools

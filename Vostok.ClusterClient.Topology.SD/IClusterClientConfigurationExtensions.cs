@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using Vostok.Clusterclient.Core;
 using Vostok.Clusterclient.Core.Topology;
+using Vostok.Clusterclient.Core.Topology.TargetEnvironment;
 using Vostok.Context;
 using Vostok.ServiceDiscovery.Abstractions;
 
@@ -18,8 +19,9 @@ namespace Vostok.Clusterclient.Topology.SD
             [NotNull] string environment,
             [NotNull] string application)
         {
-            self.ClusterProvider = new ServiceDiscoveryClusterProvider(serviceLocator, environment, application, self.Log);
-            self.TargetEnvironment = environment;
+            var environmentProvider = new FixedTargetEnvironmentProvider(environment);
+            self.ClusterProvider = new ServiceDiscoveryClusterProvider(serviceLocator, environmentProvider, application, self.Log);
+            self.TargetEnvironmentProvider = environmentProvider;
             self.TargetServiceName = application;
         }
 
@@ -30,9 +32,16 @@ namespace Vostok.Clusterclient.Topology.SD
         public static void SetupServiceDiscoveryTopology(
             [NotNull] this IClusterClientConfiguration self,
             [NotNull] IServiceLocator serviceLocator,
-            [NotNull] string application)
+            [NotNull] string application,
+            [CanBeNull] ITargetEnvironmentProvider environmentProvider = null,
+            [NotNull] string defaultEnvironment = ServiceDiscoveryConstants.DefaultEnvironment)
         {
-            self.ClusterProvider = new ServiceDiscoveryClusterProvider(serviceLocator, application, self.Log);
+            environmentProvider = environmentProvider ?? new CompositeTargetEnvironmentProvider(
+                new FlowingContextTargetEnvironmentProvider(),
+                new FixedTargetEnvironmentProvider(defaultEnvironment)
+            );
+            self.ClusterProvider = new ServiceDiscoveryClusterProvider(serviceLocator, environmentProvider, application, self.Log);
+            self.TargetEnvironmentProvider = environmentProvider;
             self.TargetServiceName = application;
         }
     }

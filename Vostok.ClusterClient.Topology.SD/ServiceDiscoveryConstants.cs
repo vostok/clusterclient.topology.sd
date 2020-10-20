@@ -1,8 +1,8 @@
 namespace Vostok.Clusterclient.Topology.SD
 {
-    internal class ServiceDiscoveryConstants
+    internal static class ServiceDiscoveryConstants
     {
-        public class DistributedProperties
+        public static class DistributedProperties
         {
             public const string ForcedEnvironment = "forced.sd.environment";
         }

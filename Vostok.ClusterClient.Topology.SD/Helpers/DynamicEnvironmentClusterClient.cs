@@ -2,24 +2,18 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Vostok.Clusterclient.Core;
 using Vostok.Clusterclient.Core.Model;
 using Vostok.Logging.Abstractions;
 
-namespace Vostok.Clusterclient.Topology.SD
+namespace Vostok.Clusterclient.Topology.SD.Helpers
 {
-    /// <summary>
-    /// A wrapper for a set of ClusterClients. Each ClusterClient is created for its designated environment.
-    /// The environment and <see cref="ClusterClientSetup"/> are provided at runtime.
-    /// </summary>
-    [PublicAPI]
-    public class DynamicEnvironmentClusterClient : IClusterClient
+    internal class DynamicEnvironmentClusterClient : IClusterClient
     {
         private readonly ILog log;
         private readonly Func<string> environmentProvider;
         private readonly Func<string, ClusterClientSetup> environmentConfiguration;
-        private ConcurrentDictionary<string, IClusterClient> cache = new ConcurrentDictionary<string, IClusterClient>();
+        private readonly ConcurrentDictionary<string, IClusterClient> cache = new ConcurrentDictionary<string, IClusterClient>();
 
         public DynamicEnvironmentClusterClient(
             ILog log,
@@ -41,15 +35,9 @@ namespace Vostok.Clusterclient.Topology.SD
             return await client.SendAsync(request, parameters, timeout, cancellationToken).ConfigureAwait(false);
         }
 
-        private IClusterClient CreateClusterClient(string environment)
-        {
-            log.Debug("Creating ClusterClient for environment={Environment}.", environment);
-            return new ClusterClient(
+        private IClusterClient CreateClusterClient(string environment) =>
+            new ClusterClient(
                 log,
-                configuration =>
-                {
-                    environmentConfiguration(environment)(configuration);
-                });
-        }
+                configuration => { environmentConfiguration(environment)(configuration); });
     }
 }

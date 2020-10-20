@@ -9,9 +9,10 @@ using Vostok.Clusterclient.Core;
 using Vostok.Clusterclient.Core.Model;
 using Vostok.Clusterclient.Core.Topology;
 using Vostok.Clusterclient.Core.Transport;
+using Vostok.Clusterclient.Topology.SD.Helpers;
 using Vostok.Logging.Console;
 
-namespace Vostok.Clusterclient.Topology.SD.Tests
+namespace Vostok.Clusterclient.Topology.SD.Tests.Helpers
 {
     [TestFixture]
     internal class DynamicEnvironmentClusterClient_Tests

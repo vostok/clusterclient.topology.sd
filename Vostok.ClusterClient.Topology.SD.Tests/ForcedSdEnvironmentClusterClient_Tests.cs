@@ -8,6 +8,7 @@ using NUnit.Framework;
 using Vostok.Clusterclient.Core;
 using Vostok.Clusterclient.Core.Model;
 using Vostok.Clusterclient.Core.Transport;
+using Vostok.Clusterclient.Topology.SD.Helpers;
 using Vostok.Context;
 using Vostok.Logging.Console;
 using Vostok.ServiceDiscovery.Abstractions;
@@ -26,7 +27,7 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         [TestCaseSource(nameof(Environments))]
         public async Task use_replicas_from_environment_specified_in_forced_sd_environment_distributed_property(string environment)
         {
-            FlowingContext.Properties.Set(ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment, environment);
+            FlowingContext.Properties.Set(ServiceDiscoveryConstants.ForcedEnvironmentProperty, environment);
 
             var transport = GetTransport();
             var client = GetForcedSdEnvironmentClusterClient(transport);
@@ -41,7 +42,7 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         {
             FlowingContext.Properties.Clear();
             FlowingContext.Properties.Current
-                .ContainsKey(ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment)
+                .ContainsKey(ServiceDiscoveryConstants.ForcedEnvironmentProperty)
                 .Should()
                 .BeFalse("Test initialization went wrong: forced.sd.environment property is still set.");
 
@@ -87,15 +88,14 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             }
 
             return new ForcedSdEnvironmentClusterClient(
-                application,
-                serviceLocator,
-                new SynchronousConsoleLog(),
-                DefaultEnvironment,
-                configuration =>
+                new ForcedSdEnvironmentClusterClientSettings(serviceLocator, application, DefaultEnvironment)
                 {
-                    configuration.Transport = transport;
-                }
-            );
+                    AdditionalSetup = configuration =>
+                    {
+                        configuration.Transport = transport;
+                    }
+                },
+                new SynchronousConsoleLog());
         }
     }
 }

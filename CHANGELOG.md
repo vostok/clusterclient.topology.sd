@@ -1,3 +1,7 @@
+## 0.1.5 (20-10-2020):
+
+Added `ForcedSdEnvironmentClusterClient`.
+
 ## 0.1.4 (20-04-2020):
 
 ReplicaComparer moved to Vostok.Commons.Helpers

@@ -4,70 +4,50 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Vostok.Clusterclient.Core;
 using Vostok.Clusterclient.Core.Model;
+using Vostok.Clusterclient.Topology.SD.Helpers;
 using Vostok.Context;
 using Vostok.Logging.Abstractions;
-using Vostok.ServiceDiscovery.Abstractions;
 
 namespace Vostok.Clusterclient.Topology.SD
 {
     /// <summary>
-    /// A ClusterClient-wrapper for <see cref="DynamicEnvironmentClusterClient"/>.
-    /// Target environment is taken from 'forced.sd.environment' distributed property and <see cref="ServiceDiscoveryClusterProvider"/> is used.
-    /// <seealso cref="FlowingContext.Properties"/>
+    /// <para>A ClusterClient-wrapper with dynamic target environment.</para>
+    /// <para>Target environment will be taken from 'forced.sd.environment' distributed property or <see cref="ForcedSdEnvironmentClusterClientSettings.DefaultEnvironment"/> will be used.</para>
     /// </summary>
     [PublicAPI]
     public class ForcedSdEnvironmentClusterClient : IClusterClient
     {
-        private readonly string defaultEnvironment;
-        private const string ForcedEnvironmentProperty = ServiceDiscoveryConstants.DistributedProperties.ForcedEnvironment;
-        private readonly IClusterClient inner;
+        private readonly IClusterClient client;
+        private readonly ForcedSdEnvironmentClusterClientSettings settings;
 
-        static ForcedSdEnvironmentClusterClient()
-        {
-            FlowingContext.Configuration.RegisterDistributedProperty(ForcedEnvironmentProperty, ContextSerializers.String);
-        }
+        static ForcedSdEnvironmentClusterClient() =>
+            FlowingContext.Configuration.RegisterDistributedProperty(ServiceDiscoveryConstants.ForcedEnvironmentProperty, ContextSerializers.String);
 
-        public ForcedSdEnvironmentClusterClient(
-            string application,
-            IServiceLocator serviceLocator,
-            ILog log,
-            string defaultEnvironment = "default",
-            [CanBeNull] ClusterClientSetup additionalSetup = null)
+        public ForcedSdEnvironmentClusterClient([NotNull] ForcedSdEnvironmentClusterClientSettings settings, [CanBeNull] ILog log)
         {
-            this.defaultEnvironment = defaultEnvironment;
-            inner = new DynamicEnvironmentClusterClient(
-                log,
+            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+
+            client = new DynamicEnvironmentClusterClient(
+                log ?? LogProvider.Get(),
                 GetEnvironment,
-                EnvironmentConfiguration(application, serviceLocator, additionalSetup));
+                SetupClient);
         }
 
-        public async Task<ClusterResult> SendAsync(
+        public Task<ClusterResult> SendAsync(
             Request request,
             RequestParameters parameters = null,
             TimeSpan? timeout = null,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            return await inner.SendAsync(request, parameters, timeout, cancellationToken).ConfigureAwait(false);
-        }
+            CancellationToken cancellationToken = new CancellationToken()) =>
+            client.SendAsync(request, parameters, timeout, cancellationToken);
 
-        private string GetEnvironment()
-        {
-            var props = FlowingContext.Properties.Current;
-            return props.TryGetValue(ForcedEnvironmentProperty, out var environment)
-                ? (string)environment
-                : defaultEnvironment;
-        }
+        private string GetEnvironment() =>
+            FlowingContext.Properties.Get(ServiceDiscoveryConstants.ForcedEnvironmentProperty, settings.DefaultEnvironment);
 
-        private Func<string, ClusterClientSetup> EnvironmentConfiguration(
-            string application,
-            IServiceLocator serviceLocator,
-            [CanBeNull] ClusterClientSetup additionalSetup)
-        {
-            return environment => configuration =>
+        private ClusterClientSetup SetupClient(string environment) =>
+            configuration =>
             {
-                configuration.SetupServiceDiscoveryTopology(serviceLocator, environment, application);
-                additionalSetup?.Invoke(configuration);
+                configuration.SetupServiceDiscoveryTopology(settings.ServiceLocator, environment, settings.Application);
+                settings.AdditionalSetup?.Invoke(configuration);
             };
-        }
     }
 }

@@ -56,7 +56,7 @@ namespace Vostok.Clusterclient.Topology.SD
             foreach (var replica in replicas)
             {
                 var tagCollection = tags.TryGetValue(replica, out var collection) ? collection : new TagCollection();
-                if (filter(tagCollection)) // todo exception
+                if (filter(tagCollection))
                     list.Add(replica);
             }
 

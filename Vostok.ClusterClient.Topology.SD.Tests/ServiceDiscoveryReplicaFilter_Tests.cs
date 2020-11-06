@@ -124,7 +124,10 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         public void Should_do_something_then_filter_throws_exception()
         {
             context.Parameters = context.Parameters.SetTagsFilter(collection => collection["tag"] == "smth");
-            filter.Filter(replicas, context).Should().BeEquivalentTo(replicas);
+            filter
+                .Invoking(c => c.Filter(replicas, context))
+                .Should()
+                .ThrowExactly<KeyNotFoundException>();
         }
         
         private class FakeContext : IRequestContext

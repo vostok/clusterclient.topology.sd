@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Vostok.Clusterclient.Core.Modules;
-using Vostok.Clusterclient.Core.ReplicaFilter;
+using Vostok.Clusterclient.Core.Topology;
 using Vostok.Clusterclient.Topology.SD.Helpers;
 using Vostok.Commons.Collections;
 using Vostok.Commons.Helpers.Topology;

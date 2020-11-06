@@ -10,6 +10,9 @@ namespace Vostok.Clusterclient.Topology.SD.Helpers
     {
         internal const string RequestParametersTagsFilterKey = "ReplicaTagsFilter";
 
+        /// <summary>
+        /// Sets given <paramref name="filterFunc"/> replicas filtering function based on replica ServiceDiscovery <see cref="TagCollection"/> to <paramref name="requestParameters"/>.
+        /// </summary>
         public static RequestParameters SetTagsFilter(this RequestParameters requestParameters, Func<TagCollection, bool> filterFunc)
             => requestParameters.WithProperty(RequestParametersTagsFilterKey, filterFunc);
 

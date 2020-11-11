@@ -54,10 +54,10 @@ namespace Vostok.Clusterclient.Topology.SD
             if (tags == null)
                 return replicas;
 
-            return Filter(replicas, replicaMatchesFunc, tags);
+            return FilterReplicas(replicas, replicaMatchesFunc, tags);
         }
 
-        private IEnumerable<Uri> Filter(IEnumerable<Uri> replicas, Func<TagCollection, bool> replicaMatchesFunc, IReadOnlyDictionary<Uri, TagCollection> tags)
+        private IEnumerable<Uri> FilterReplicas(IEnumerable<Uri> replicas, Func<TagCollection, bool> replicaMatchesFunc, IReadOnlyDictionary<Uri, TagCollection> tags)
         {
             foreach (var replica in replicas)
             {

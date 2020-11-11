@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using FluentAssertions;
 using NSubstitute;
@@ -121,13 +122,13 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         }
 
         [Test]
-        public void Should_do_something_then_filter_throws_exception()
+        public void Should_throw_exception_then_filter_function_throws_exception()
         {
             context.Parameters = context.Parameters.SetTagsFilter(collection => collection["tag"] == "smth");
             filter
-                .Invoking(c => c.Filter(replicas, context))
+                .Invoking(c => c.Filter(replicas, context).ToArray())
                 .Should()
-                .ThrowExactly<KeyNotFoundException>();
+                .Throw<KeyNotFoundException>();
         }
         
         private class FakeContext : IRequestContext

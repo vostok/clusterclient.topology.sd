@@ -18,7 +18,7 @@ namespace Vostok.Clusterclient.Topology.SD
             [NotNull] string application)
         {
             self.ClusterProvider = new ServiceDiscoveryClusterProvider(serviceLocator, environment, application, self.Log);
-            self.AddReplicaFilter(new ServiceDiscoveryReplicaFilter(serviceLocator, environment, application, self.Log));
+            self.AddReplicasFilter(new ServiceDiscoveryReplicaFilter(serviceLocator, environment, application, self.Log));
             self.TargetEnvironment = environment;
             self.TargetServiceName = application;
         }

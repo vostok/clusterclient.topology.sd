@@ -15,11 +15,12 @@ using Vostok.ServiceDiscovery.Extensions;
 namespace Vostok.Clusterclient.Topology.SD
 {
     /// <summary>
-    /// An implementation of <see cref="IReplicaFilter"/> based on ServiceDiscovery replica tags.
+    /// An implementation of <see cref="IReplicaFilter" /> based on ServiceDiscovery replica tags.
     /// </summary>
     [PublicAPI]
     public class ServiceDiscoveryReplicaFilter : IReplicaFilter
     {
+        private readonly TagCollection emptyCollection = new TagCollection();
         private readonly IServiceLocator serviceLocator;
         private readonly string environment;
         private readonly string application;
@@ -38,8 +39,8 @@ namespace Vostok.Clusterclient.Topology.SD
         }
 
         /// <summary>
-        /// <para>Returns filtered given <paramref name="replicas"/> based on filter from <paramref name="requestContext"/> <see cref="IRequestContext.Parameters"/>.</para>
-        /// <para>Use <see cref="RequestParametersExtensions.SetTagsFilter(RequestParameters, Func{TagCollection, bool})"/> to add filter rules for request.</para>
+        /// <para>Returns filtered given <paramref name="replicas" /> based on filter from <paramref name="requestContext" /> <see cref="IRequestContext.Parameters" />.</para>
+        /// <para>Use <see cref="RequestParametersExtensions.SetTagsFilter(RequestParameters, Func{TagCollection, bool})" /> to add filter rules for request.</para>
         /// <para>If filter is null method returns initial replicas.</para>
         /// </summary>
         public IEnumerable<Uri> Filter(IEnumerable<Uri> replicas, IRequestContext requestContext)
@@ -52,15 +53,17 @@ namespace Vostok.Clusterclient.Topology.SD
             if (tags == null)
                 return replicas;
 
-            var list = new List<Uri>();
+            return Filter(replicas, filter, tags);
+        }
+
+        private IEnumerable<Uri> Filter(IEnumerable<Uri> replicas, Func<TagCollection, bool> filter, IReadOnlyDictionary<Uri, TagCollection> tags)
+        {
             foreach (var replica in replicas)
             {
-                var tagCollection = tags.TryGetValue(replica, out var collection) ? collection : new TagCollection();
+                var tagCollection = tags.TryGetValue(replica, out var collection) ? collection : emptyCollection;
                 if (filter(tagCollection))
-                    list.Add(replica);
+                    yield return replica;
             }
-
-            return list;
         }
 
         private IReadOnlyDictionary<Uri, TagCollection> ParseTags(IServiceTopology serviceTopology)

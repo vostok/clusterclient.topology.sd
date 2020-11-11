@@ -21,7 +21,7 @@ namespace Vostok.Clusterclient.Topology.SD.Tests.Helpers
         }
 
         [Test]
-        public void AddTagsFilter_should_set_correct_func()
+        public void SetTagsFilter_should_set_correct_func()
         {
             parameters = parameters.SetTagsFilter(filterFunc);
             parameters.Properties.ContainsKey(RequestParametersExtensions.RequestParametersTagsFilterKey).Should().BeTrue();
@@ -29,7 +29,7 @@ namespace Vostok.Clusterclient.Topology.SD.Tests.Helpers
         }
 
         [Test]
-        public void AddTagsFilter_should_rewrite_previous_call_func()
+        public void SetTagsFilter_should_rewrite_previous_call_func()
         {
             Func<TagCollection, bool> firstFilter = collection => collection.ContainsKey("tag2");
             parameters = parameters.SetTagsFilter(firstFilter);

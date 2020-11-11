@@ -8,7 +8,7 @@ namespace Vostok.Clusterclient.Topology.SD.Helpers
     [PublicAPI]
     public static class RequestParametersExtensions
     {
-        internal const string RequestParametersTagsFilterKey = "ReplicaTagsFilter";
+        internal const string RequestParametersTagsFilterKey = "ReplicasTagsFilter";
 
         /// <summary>
         /// Sets given <paramref name="filterFunc"/> replicas filtering function based on replica ServiceDiscovery <see cref="TagCollection"/> to <paramref name="requestParameters"/>.

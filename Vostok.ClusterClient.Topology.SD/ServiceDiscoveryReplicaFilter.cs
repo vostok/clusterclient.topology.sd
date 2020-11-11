@@ -39,29 +39,30 @@ namespace Vostok.Clusterclient.Topology.SD
         }
 
         /// <summary>
-        /// <para>Returns filtered given <paramref name="replicas" /> based on filter from <paramref name="requestContext" /> <see cref="IRequestContext.Parameters" />.</para>
-        /// <para>Use <see cref="RequestParametersExtensions.SetTagsFilter(RequestParameters, Func{TagCollection, bool})" /> to add filter rules for request.</para>
-        /// <para>If filter is null method returns initial replicas.</para>
+        /// <para> Returns filtered given <paramref name="replicas" /> based on filter from <paramref name="requestContext" /> <see cref="IRequestContext.Parameters" />. </para>
+        /// <para> Use <see cref="RequestParametersExtensions.SetTagsFilter(RequestParameters, Func{TagCollection, bool})" /> to add filter rules for request. </para>
+        /// <para> If filter returns false then replica will be filtered. </para>
+        /// <para> If filter is null then method returns initial replicas. </para>
         /// </summary>
         public IEnumerable<Uri> Filter(IEnumerable<Uri> replicas, IRequestContext requestContext)
         {
-            var filter = requestContext.Parameters.GetTagsFilter();
-            if (filter == null)
+            var replicaMatchesFunc = requestContext.Parameters.GetTagsFilter();
+            if (replicaMatchesFunc == null)
                 return replicas;
 
             var tags = transform.Get(serviceLocator.Locate(environment, application));
             if (tags == null)
                 return replicas;
 
-            return Filter(replicas, filter, tags);
+            return Filter(replicas, replicaMatchesFunc, tags);
         }
 
-        private IEnumerable<Uri> Filter(IEnumerable<Uri> replicas, Func<TagCollection, bool> filter, IReadOnlyDictionary<Uri, TagCollection> tags)
+        private IEnumerable<Uri> Filter(IEnumerable<Uri> replicas, Func<TagCollection, bool> replicaMatchesFunc, IReadOnlyDictionary<Uri, TagCollection> tags)
         {
             foreach (var replica in replicas)
             {
                 var tagCollection = tags.TryGetValue(replica, out var collection) ? collection : emptyCollection;
-                if (filter(tagCollection))
+                if (replicaMatchesFunc(tagCollection))
                     yield return replica;
             }
         }

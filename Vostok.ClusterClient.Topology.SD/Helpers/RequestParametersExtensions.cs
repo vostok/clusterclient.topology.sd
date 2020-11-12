@@ -2,6 +2,7 @@ using System;
 using JetBrains.Annotations;
 using Vostok.Clusterclient.Core.Model;
 using Vostok.ServiceDiscovery.Abstractions.Models;
+using Vostok.ServiceDiscovery.Extensions.TagFilters;
 
 namespace Vostok.Clusterclient.Topology.SD.Helpers
 {
@@ -16,6 +17,12 @@ namespace Vostok.Clusterclient.Topology.SD.Helpers
         /// </summary>
         public static RequestParameters SetTagsFilter(this RequestParameters requestParameters, Func<TagCollection, bool> replicaMatchesFunc)
             => requestParameters.WithProperty(RequestParametersTagsFilterKey, replicaMatchesFunc);
+
+        /// <summary>
+        /// Sets given <see cref="ITagFilter.Matches" /> realization to <paramref name="requestParameters" />.
+        /// </summary>
+        public static RequestParameters SetTagsFilter(this RequestParameters requestParameters, ITagFilter tagFilter)
+            => requestParameters.SetTagsFilter(tagFilter.Matches);
 
         internal static Func<TagCollection, bool> GetTagsFilter(this RequestParameters requestParameters) =>
             requestParameters.Properties.TryGetValue(RequestParametersTagsFilterKey, out var filterObject)

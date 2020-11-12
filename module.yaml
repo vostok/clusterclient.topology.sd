@@ -17,7 +17,7 @@ notests *default:
     - vostok.devtools
     - vostok.logging.abstractions
     - vostok.servicediscovery.abstractions@borovskyav\/sd-tags
-    - vostok.servicediscovery.extensions@borovskyav\/sd-tags
+    - vostok.servicediscovery.extensions@borovskyav\/sd-tags-filters
 full-build > notests:
   deps:
     - vostok.logging.console

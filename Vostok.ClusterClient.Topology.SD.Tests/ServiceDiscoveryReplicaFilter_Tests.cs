@@ -27,7 +27,7 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         private readonly Uri replica3 = new Uri("http://replica3:789/v3/");
         private List<Uri> replicas;
         private IServiceLocator serviceLocator;
-        private ServiceDiscoveryReplicaFilter filter;
+        private ServiceDiscoveryReplicasFilter filter;
         private string environment;
         private string application;
         private IServiceTopology topology;
@@ -45,7 +45,7 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             serviceLocator = Substitute.For<IServiceLocator>();
             serviceLocator.Locate(environment, application).Returns(_ => topology);
 
-            filter = new ServiceDiscoveryReplicaFilter(serviceLocator, environment, application, log);
+            filter = new ServiceDiscoveryReplicasFilter(serviceLocator, environment, application, log);
             
             context = new FakeContext(new RequestParameters().SetTagsFilter(collection => collection.ContainsKey("tag1")));
         }

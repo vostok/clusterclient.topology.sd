@@ -15,10 +15,10 @@ using Vostok.ServiceDiscovery.Extensions;
 namespace Vostok.Clusterclient.Topology.SD
 {
     /// <summary>
-    /// An implementation of <see cref="IReplicaFilter" /> based on ServiceDiscovery replica tags.
+    /// An implementation of <see cref="IReplicasFilter" /> based on ServiceDiscovery replica tags.
     /// </summary>
     [PublicAPI]
-    public class ServiceDiscoveryReplicaFilter : IReplicaFilter
+    public class ServiceDiscoveryReplicasFilter : IReplicasFilter
     {
         private readonly TagCollection emptyCollection = new TagCollection();
         private readonly IServiceLocator serviceLocator;
@@ -28,7 +28,7 @@ namespace Vostok.Clusterclient.Topology.SD
 
         private readonly CachingTransform<IServiceTopology, IReadOnlyDictionary<Uri, TagCollection>> transform;
 
-        public ServiceDiscoveryReplicaFilter([NotNull] IServiceLocator serviceLocator, [NotNull] string environment, [NotNull] string application, [CanBeNull] ILog log)
+        public ServiceDiscoveryReplicasFilter([NotNull] IServiceLocator serviceLocator, [NotNull] string environment, [NotNull] string application, [CanBeNull] ILog log)
         {
             this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
             this.environment = environment ?? throw new ArgumentNullException(nameof(environment));

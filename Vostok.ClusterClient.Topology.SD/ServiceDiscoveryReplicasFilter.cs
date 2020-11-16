@@ -50,6 +50,19 @@ namespace Vostok.Clusterclient.Topology.SD
             if (replicaMatchesFunc == null)
                 return replicas;
 
+            //CR: (deniaa) Была реплика r1. Мы захватили её в кластерпровайдере, они приехала сюда.
+            //CR: (deniaa) На реплике был таг "v1".
+            //CR: (deniaa) У нас условие "!v1". 
+            //CR: (deniaa) Реплика r1 исчезла, вместе со своими тегами. Мы захватили это знание её в serviceLocator.Locate.
+            //CR: (deniaa) Никаких тегов у реплики мы не найдем, условие "!v1" скажет, что реплика подходит.
+            //CR: (deniaa) И, допустим, реплика на самом деле все ещё жива (просто из SD выпала).
+            //CR: (deniaa) Мы отправим на неё запрос, что будет ошибкой.
+            //CR: (deniaa) Проблем "в обратную сторону" с появлением новых реплик или тегов, или удалением тегов с ранее захваченных реплик (без удаления реплик) я не придумал.
+
+            //CR: (deniaa) Чтобы поправить это "правильно", нужно пофиксить аналогичную проблему в ServiceLocator'е и сломать тонну интерфейсов и моделей:
+            //CR: (deniaa) сделать все атомарным и единожды зачитаннынм из serviceLocator'а, зафиксированным на весь запрос, через все модули.
+            //CR: (deniaa) Можно закостылить это здесь и сейчас - отфильтровать все те реплики, что отсутствуют в ответе от новозапрошенного Locate. "Освежить" состав реплик.
+
             var tags = transform.Get(serviceLocator.Locate(environment, application));
             if (tags == null)
                 return replicas;
@@ -76,6 +89,8 @@ namespace Vostok.Clusterclient.Topology.SD
             }
 
             var serviceTags = serviceTopology.Properties.GetTags();
+            //CR: (deniaa) А зачем мы делаем здесь копию? Это наш фильтр. Мы сами не портим этот словарь и не отдаем его никуда наружу.
+            //CR: (deniaa) Наружу отдаются только TagCollections, но именно их копии мы здесь не делаем все равно.
             var replicaTagsDictionary = new Dictionary<Uri, TagCollection>(serviceTags.Count, ReplicaComparer.Instance);
             foreach (var replicaTags in serviceTags)
                 replicaTagsDictionary.Add(replicaTags.Key, replicaTags.Value);

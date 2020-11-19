@@ -13,7 +13,7 @@ namespace Vostok.Clusterclient.Topology.SD.Helpers
 
         /// <summary>
         /// <para> Sets given <paramref name="replicaMatchesFunc" /> replicas filtering function based on replica ServiceDiscovery <see cref="TagCollection" /> to <paramref name="requestParameters" />. </para> 
-        /// <para> If <paramref name="replicaMatchesFunc" /> returns false then replica will be filtered.</para>
+        /// <para> If an expression derived from a <paramref name="replicaMatchesFunc" /> returns false then replica will be filtered.</para>
         /// </summary>
         public static RequestParameters SetTagsFilter(this RequestParameters requestParameters, Func<TagCollection, bool> replicaMatchesFunc)
             => requestParameters.WithProperty(RequestParametersTagsFilterKey, replicaMatchesFunc);

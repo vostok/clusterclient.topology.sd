@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Vostok.Clusterclient.Core.Model;
 using Vostok.Clusterclient.Core.Modules;
@@ -26,7 +27,7 @@ namespace Vostok.Clusterclient.Topology.SD
         private readonly string application;
         private readonly ILog log;
 
-        private readonly CachingTransform<IServiceTopology, IReadOnlyDictionary<Uri, TagCollection>> transform;
+        private readonly CachingTransform<IServiceTopology, (IReadOnlyList<Uri>, IReadOnlyDictionary<Uri, TagCollection>)> transform;
 
         public ServiceDiscoveryReplicasFilter([NotNull] IServiceLocator serviceLocator, [NotNull] string environment, [NotNull] string application, [CanBeNull] ILog log)
         {
@@ -35,7 +36,7 @@ namespace Vostok.Clusterclient.Topology.SD
             this.application = application ?? throw new ArgumentNullException(nameof(application));
             this.log = log ?? LogProvider.Get();
 
-            transform = new CachingTransform<IServiceTopology, IReadOnlyDictionary<Uri, TagCollection>>(ParseTags);
+            transform = new CachingTransform<IServiceTopology, (IReadOnlyList<Uri>, IReadOnlyDictionary<Uri, TagCollection>)>(ParseTags);
         }
 
         /// <summary>
@@ -50,24 +51,11 @@ namespace Vostok.Clusterclient.Topology.SD
             if (replicaMatchesFunc == null)
                 return replicas;
 
-            //CR: (deniaa) Была реплика r1. Мы захватили её в кластерпровайдере, они приехала сюда.
-            //CR: (deniaa) На реплике был таг "v1".
-            //CR: (deniaa) У нас условие "!v1". 
-            //CR: (deniaa) Реплика r1 исчезла, вместе со своими тегами. Мы захватили это знание её в serviceLocator.Locate.
-            //CR: (deniaa) Никаких тегов у реплики мы не найдем, условие "!v1" скажет, что реплика подходит.
-            //CR: (deniaa) И, допустим, реплика на самом деле все ещё жива (просто из SD выпала).
-            //CR: (deniaa) Мы отправим на неё запрос, что будет ошибкой.
-            //CR: (deniaa) Проблем "в обратную сторону" с появлением новых реплик или тегов, или удалением тегов с ранее захваченных реплик (без удаления реплик) я не придумал.
-
-            //CR: (deniaa) Чтобы поправить это "правильно", нужно пофиксить аналогичную проблему в ServiceLocator'е и сломать тонну интерфейсов и моделей:
-            //CR: (deniaa) сделать все атомарным и единожды зачитаннынм из serviceLocator'а, зафиксированным на весь запрос, через все модули.
-            //CR: (deniaa) Можно закостылить это здесь и сейчас - отфильтровать все те реплики, что отсутствуют в ответе от новозапрошенного Locate. "Освежить" состав реплик.
-
-            var tags = transform.Get(serviceLocator.Locate(environment, application));
-            if (tags == null)
+            var (slReplicas, tags) = transform.Get(serviceLocator.Locate(environment, application));
+            if (slReplicas == null || tags == null)
                 return replicas;
 
-            return FilterReplicas(replicas, replicaMatchesFunc, tags);
+            return FilterReplicas(replicas.Intersect(slReplicas, ReplicaComparer.Instance), replicaMatchesFunc, tags);
         }
 
         private IEnumerable<Uri> FilterReplicas(IEnumerable<Uri> replicas, Func<TagCollection, bool> replicaMatchesFunc, IReadOnlyDictionary<Uri, TagCollection> tags)
@@ -80,21 +68,21 @@ namespace Vostok.Clusterclient.Topology.SD
             }
         }
 
-        private IReadOnlyDictionary<Uri, TagCollection> ParseTags(IServiceTopology serviceTopology)
+        private (IReadOnlyList<Uri>, IReadOnlyDictionary<Uri, TagCollection>) ParseTags(IServiceTopology serviceTopology)
         {
             if (serviceTopology == null)
             {
                 LogTopologyNotFound();
-                return null;
+                return (null, null);
             }
 
             var serviceTags = serviceTopology.Properties.GetTags();
-            //CR: (deniaa) А зачем мы делаем здесь копию? Это наш фильтр. Мы сами не портим этот словарь и не отдаем его никуда наружу.
-            //CR: (deniaa) Наружу отдаются только TagCollections, но именно их копии мы здесь не делаем все равно.
+            //CR: (deniaa) Рђ Р·Р°С‡РµРј РјС‹ РґРµР»Р°РµРј Р·РґРµСЃСЊ РєРѕРїРёСЋ? Р­С‚Рѕ РЅР°С€ С„РёР»СЊС‚СЂ. РњС‹ СЃР°РјРё РЅРµ РїРѕСЂС‚РёРј СЌС‚РѕС‚ СЃР»РѕРІР°СЂСЊ Рё РЅРµ РѕС‚РґР°РµРј РµРіРѕ РЅРёРєСѓРґР° РЅР°СЂСѓР¶Сѓ.
+            //CR: (deniaa) РќР°СЂСѓР¶Сѓ РѕС‚РґР°СЋС‚СЃСЏ С‚РѕР»СЊРєРѕ TagCollections, РЅРѕ РёРјРµРЅРЅРѕ РёС… РєРѕРїРёРё РјС‹ Р·РґРµСЃСЊ РЅРµ РґРµР»Р°РµРј РІСЃРµ СЂР°РІРЅРѕ.
             var replicaTagsDictionary = new Dictionary<Uri, TagCollection>(serviceTags.Count, ReplicaComparer.Instance);
             foreach (var replicaTags in serviceTags)
                 replicaTagsDictionary.Add(replicaTags.Key, replicaTags.Value);
-            return replicaTagsDictionary;
+            return (serviceTopology.Replicas, replicaTagsDictionary);
         }
 
         #region Logging

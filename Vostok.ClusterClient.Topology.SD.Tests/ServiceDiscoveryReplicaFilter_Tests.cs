@@ -114,11 +114,25 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             
             var applicationInfo = new ApplicationInfo(environment, application, null);
             topology = ServiceTopology.Build(
-                replicas, 
+                new []{replica1, replica2Fqdn, replica3}, 
                 applicationInfo.Properties
                     .SetReplicaTags(replica1.ToString(), new TagCollection{"tag1"})
                     .SetReplicaTags(replica2Fqdn.ToString(), new TagCollection{"tag1"}));
             filter.Filter(new List<Uri>{replica1Fqdn, replica2, replica3}, context).Should().BeEquivalentTo(replica1Fqdn, replica2);
+        }
+
+        [Test]
+        public void Should_filter_replicas_that_does_not_exists_in_service_locator_replicas()
+        {
+            var applicationInfo = new ApplicationInfo(environment, application, null);
+            topology = ServiceTopology.Build(
+                new []{replica1}, 
+                applicationInfo.Properties
+                    .SetReplicaTags(replica1.ToString(), new TagCollection{"tag1"})
+                    .SetReplicaTags(replica2.ToString(), new TagCollection{"tag1"})
+                    .SetReplicaTags(replica3.ToString(), new TagCollection{"tag1"}));
+            
+            filter.Filter(new List<Uri>{replica1, replica2, replica3}, context).Should().BeEquivalentTo(replica1);
         }
 
         [Test]

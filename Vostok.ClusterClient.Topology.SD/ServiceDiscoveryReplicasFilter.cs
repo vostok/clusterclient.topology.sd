@@ -76,13 +76,7 @@ namespace Vostok.Clusterclient.Topology.SD
                 return (null, null);
             }
 
-            var serviceTags = serviceTopology.Properties.GetTags();
-            //CR: (deniaa) А зачем мы делаем здесь копию? Это наш фильтр. Мы сами не портим этот словарь и не отдаем его никуда наружу.
-            //CR: (deniaa) Наружу отдаются только TagCollections, но именно их копии мы здесь не делаем все равно.
-            var replicaTagsDictionary = new Dictionary<Uri, TagCollection>(serviceTags.Count, ReplicaComparer.Instance);
-            foreach (var replicaTags in serviceTags)
-                replicaTagsDictionary.Add(replicaTags.Key, replicaTags.Value);
-            return (serviceTopology.Replicas, replicaTagsDictionary);
+            return (serviceTopology.Replicas, serviceTopology.Properties.GetTags());
         }
 
         #region Logging

@@ -122,6 +122,23 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         }
 
         [Test]
+        public void Should_ignore_duplicate_replica_name_in_service_tags()
+        {
+            var replicaNoFqdn = new Uri("http://replica1:123/v1/");
+            var replicaFqdn = new Uri("http://replica1.domain.my:123/v1/");
+            
+            var applicationInfo = new ApplicationInfo(environment, application, null);
+            topology = ServiceTopology.Build(
+                new []{replicaFqdn},
+                applicationInfo.Properties
+                    .SetReplicaTags(replicaNoFqdn.ToString(), new TagCollection{"tag2"})
+                    .SetReplicaTags(replicaFqdn.ToString(), new TagCollection{"tag1"}));
+            
+            filter.Filter(new List<Uri>{replicaFqdn}, context).Should().BeEmpty();
+            filter.Filter(new List<Uri>{replicaNoFqdn}, context).Should().BeEmpty();
+        }
+
+        [Test]
         public void Should_filter_replicas_that_does_not_exists_in_service_locator_replicas()
         {
             var applicationInfo = new ApplicationInfo(environment, application, null);

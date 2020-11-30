@@ -153,6 +153,20 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         }
 
         [Test]
+        public void Should_filter_replicas_that_does_not_exists_in_given_replicas()
+        {
+            var applicationInfo = new ApplicationInfo(environment, application, null);
+            topology = ServiceTopology.Build(
+                new []{replica1, replica2, replica3}, 
+                applicationInfo.Properties
+                    .SetReplicaTags(replica1.ToString(), new TagCollection{"tag1"})
+                    .SetReplicaTags(replica2.ToString(), new TagCollection{"tag1"})
+                    .SetReplicaTags(replica3.ToString(), new TagCollection{"tag1"}));
+            
+            filter.Filter(new List<Uri>{replica1, replica2}, context).Should().BeEquivalentTo(replica1, replica2);
+        }
+
+        [Test]
         public void Should_throw_exception_then_filter_function_throws_exception()
         {
             context.Parameters = context.Parameters.SetTagsFilter(collection => collection["tag"] == "smth");

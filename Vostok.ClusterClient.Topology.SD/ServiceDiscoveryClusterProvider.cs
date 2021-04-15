@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Vostok.Clusterclient.Core.Topology;
 using Vostok.Commons.Collections;
@@ -8,7 +7,6 @@ using Vostok.Commons.Helpers.Comparers;
 using Vostok.Commons.Helpers.Topology;
 using Vostok.Logging.Abstractions;
 using Vostok.ServiceDiscovery.Abstractions;
-using Vostok.ServiceDiscovery.Extensions;
 
 namespace Vostok.Clusterclient.Topology.SD
 {
@@ -27,12 +25,24 @@ namespace Vostok.Clusterclient.Topology.SD
         private volatile Uri[] resolvedReplicas;
 
         private readonly CachingTransform<IServiceTopology, Uri[]> transform;
+        private ServiceDiscoveryClusterProviderSettings settings;
 
         public ServiceDiscoveryClusterProvider([NotNull] IServiceLocator serviceLocator, [NotNull] string environment, [NotNull] string application, [CanBeNull] ILog log)
+            : this(serviceLocator, environment, application, new ServiceDiscoveryClusterProviderSettings(), log)
+        {
+        }
+
+        public ServiceDiscoveryClusterProvider(
+            [NotNull] IServiceLocator serviceLocator,
+            [NotNull] string environment,
+            [NotNull] string application,
+            [NotNull] ServiceDiscoveryClusterProviderSettings settings,
+            [CanBeNull] ILog log)
         {
             this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
             this.environment = environment ?? throw new ArgumentNullException(nameof(environment));
             this.application = application ?? throw new ArgumentNullException(nameof(application));
+            this.settings = settings;
             this.log = log ?? LogProvider.Get();
 
             transform = new CachingTransform<IServiceTopology, Uri[]>(ParseReplicas);
@@ -44,16 +54,13 @@ namespace Vostok.Clusterclient.Topology.SD
         [CanBeNull]
         private Uri[] ParseReplicas([CanBeNull] IServiceTopology topology)
         {
-            if (topology == null)
+            var replicas = settings.ReplicasParser.ParseReplicas(topology);
+
+            if (replicas == null)
             {
                 LogTopologyNotFound();
                 return null;
             }
-
-            var blacklist = topology.Properties.GetBlacklist();
-            var replicas = topology.Replicas
-                .Except(blacklist, ReplicaComparer.Instance)
-                .ToArray();
 
             if (!ReplicaListComparer.Equals(resolvedReplicas, replicas))
             {

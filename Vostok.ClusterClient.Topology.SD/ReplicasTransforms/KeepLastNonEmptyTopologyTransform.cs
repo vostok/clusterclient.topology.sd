@@ -12,7 +12,7 @@ namespace Vostok.Clusterclient.Topology.SD.ReplicasTransforms
 
         public KeepLastNonEmptyTopologyTransform(ILog log)
         {
-            this.log = log.ForContext<KeepLastNonEmptyTopologyTransform>();
+            this.log = log ?? LogProvider.Get();
         }
 
         public IEnumerable<Uri> Transform(IServiceTopology topology)

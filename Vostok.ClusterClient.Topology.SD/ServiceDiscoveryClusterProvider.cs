@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Vostok.Clusterclient.Core.Topology;
 using Vostok.Commons.Collections;
@@ -7,6 +8,7 @@ using Vostok.Commons.Helpers.Comparers;
 using Vostok.Commons.Helpers.Topology;
 using Vostok.Logging.Abstractions;
 using Vostok.ServiceDiscovery.Abstractions;
+using Vostok.ServiceDiscovery.Extensions;
 
 namespace Vostok.Clusterclient.Topology.SD
 {
@@ -54,13 +56,15 @@ namespace Vostok.Clusterclient.Topology.SD
         [CanBeNull]
         private Uri[] ParseReplicas([CanBeNull] IServiceTopology topology)
         {
-            var replicas = settings.ReplicasParser.ParseReplicas(topology);
-
-            if (replicas == null)
+            if (topology == null)
             {
                 LogTopologyNotFound();
                 return null;
             }
+
+            var replicas = settings.ServiceTopologyTransform.Transform(topology)
+                .Except(topology.Properties.GetBlacklist(), ReplicaComparer.Instance)
+                .ToArray();
 
             if (!ReplicaListComparer.Equals(resolvedReplicas, replicas))
             {

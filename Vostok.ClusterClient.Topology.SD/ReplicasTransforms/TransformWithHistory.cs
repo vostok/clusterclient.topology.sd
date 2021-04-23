@@ -2,56 +2,38 @@
 using System.Collections.Generic;
 using System.Linq;
 using Vostok.Clusterclient.Topology.SD.DataStructures.TimedCircularBuffer;
-using Vostok.Commons.Helpers.Topology;
 using Vostok.ServiceDiscovery.Abstractions;
-using Vostok.ServiceDiscovery.Extensions;
 
-namespace Vostok.Clusterclient.Topology.SD.ReplicasParsers
+namespace Vostok.Clusterclient.Topology.SD.ReplicasTransforms
 {
-    public class ParserWithHistory : IReplicasParser
+    public class TransformWithHistory : IServiceTopologyTransform
     {
         private readonly double historyLengthMultiplier;
         private readonly double okayishReplicasAliveRate;
         private readonly TimedCircularBuffer<int> maxObserverReplicasCount;
         private ReplicasHistoryState state;
 
-        public ParserWithHistory(double historyLengthMultiplier, double okayishReplicasAliveRate, ParserWithHistorySettings settings)
+        public TransformWithHistory(double historyLengthMultiplier, double okayishReplicasAliveRate, TransformWithHistorySettings settings)
         {
             this.historyLengthMultiplier = historyLengthMultiplier;
             this.okayishReplicasAliveRate = okayishReplicasAliveRate;
             maxObserverReplicasCount = new TimedCircularBuffer<int>(settings.HistoryBucketCount, settings.HistoryBucketSizeInTicks, settings.HistoricalAliveReplicasCountAggregator, settings.TimedCircularBufferSettings);
         }
 
-        public Uri[] ParseReplicas(IServiceTopology topology)
+        public IEnumerable<Uri> Transform(IServiceTopology topology)
         {
-            var blacklist = new Uri[0];
-            if (topology != null)
-            {
+            var replicas = topology.Replicas.ToArray();
 
-                blacklist = topology.Properties.GetBlacklist();
-                var replicas = topology.Replicas.ToArray();
+            state = ShiftHistory(replicas, state);
 
-                state = ShiftHistory(replicas, state);
-            }
-
-            if (state == null)
-                return null;
-            
             var okayishReplicasCount = (int)(state.MaxObservedAliveReplicas * okayishReplicasAliveRate);
-            
+
             if (state.aliveCount >= okayishReplicasCount)
-                return state.aliveReplicas
-                    .Except(blacklist, ReplicaComparer.Instance)
-                    .ToArray();
+                return state.aliveReplicas.ToArray();
 
             return state.AliveAndStaleReplicas.Count <= okayishReplicasCount
-                ? state.AliveAndStaleReplicas
-                    .Except(blacklist, ReplicaComparer.Instance)
-                    .ToArray()
-                : state.AliveAndStaleReplicas
-                    .Except(blacklist, ReplicaComparer.Instance)
-                    .Take(okayishReplicasCount)
-                    .ToArray();
+                ? state.AliveAndStaleReplicas.ToArray()
+                : state.AliveAndStaleReplicas.Take(okayishReplicasCount).ToArray();
         }
 
         private ReplicasHistoryState ShiftHistory(Uri[] newAliveReplicas, ReplicasHistoryState state)

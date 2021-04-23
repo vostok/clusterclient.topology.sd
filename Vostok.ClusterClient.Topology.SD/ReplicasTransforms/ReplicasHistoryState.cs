@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vostok.Clusterclient.Topology.SD.ReplicasParsers
+namespace Vostok.Clusterclient.Topology.SD.ReplicasTransforms
 {
     public class ReplicasHistoryState
     {

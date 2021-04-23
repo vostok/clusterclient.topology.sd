@@ -1,9 +1,9 @@
 ﻿using System;
 using Vostok.Clusterclient.Topology.SD.DataStructures.TimedCircularBuffer;
 
-namespace Vostok.Clusterclient.Topology.SD.ReplicasParsers
+namespace Vostok.Clusterclient.Topology.SD.ReplicasTransforms
 {
-    public class ParserWithHistorySettings
+    public class TransformWithHistorySettings
     {
         public int HistoryBucketCount { get; set; } = 12;
         public long HistoryBucketSizeInTicks { get; set; } = TimeSpan.FromHours(1).Ticks;

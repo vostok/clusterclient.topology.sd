@@ -3,9 +3,14 @@ using Vostok.Clusterclient.Topology.SD.ReplicasTransforms;
 
 namespace Vostok.Clusterclient.Topology.SD
 {
+    [PublicAPI]
     public class ServiceDiscoveryClusterProviderSettings
     {
-        [NotNull]
-        public IServiceTopologyTransform ServiceTopologyTransform { get; set; } = new DirectTransform();
+        /// <summary>
+        /// If not set, replicas will be extracted from the IServiceTopology as is.
+        /// Blacklist will be applied in <see cref="ServiceDiscoveryClusterProvider" /> after calling this Transform.
+        /// </summary>
+        [CanBeNull]
+        public IServiceTopologyTransform ServiceTopologyTransform { get; set; }
     }
 }

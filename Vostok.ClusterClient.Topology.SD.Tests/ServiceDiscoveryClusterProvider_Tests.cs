@@ -4,6 +4,7 @@ using System.Linq;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
+using Vostok.Clusterclient.Topology.SD.ReplicasTransforms;
 using Vostok.Logging.Abstractions;
 using Vostok.Logging.Console;
 using Vostok.ServiceDiscovery.Abstractions;
@@ -35,7 +36,8 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             serviceLocator = Substitute.For<IServiceLocator>();
             serviceLocator.Locate(environment, application).Returns(_ => topology);
 
-            provider = new ServiceDiscoveryClusterProvider(serviceLocator, environment, application, log);
+            var settings = new ServiceDiscoveryClusterProviderSettings {ServiceTopologyTransform = new DirectTransform()};
+            provider = new ServiceDiscoveryClusterProvider(serviceLocator, environment, application, settings, log);
 
             blacklist = null;
         }

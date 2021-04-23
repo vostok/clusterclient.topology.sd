@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Vostok.Commons.Helpers.Topology;
 using Vostok.ServiceDiscovery.Abstractions;
 
 namespace Vostok.Clusterclient.Topology.SD.ReplicasTransforms
 {
+    [PublicAPI]
     public class NeverForgetReplicasTransform : IServiceTopologyTransform
     {
         private readonly HashSet<Uri> detectedReplicas = new HashSet<Uri>(ReplicaComparer.Instance);

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Vostok.Logging.Abstractions;
 using Vostok.ServiceDiscovery.Abstractions;
 
 namespace Vostok.Clusterclient.Topology.SD.ReplicasTransforms
 {
+    [PublicAPI]
     public class KeepLastNonEmptyTopologyTransform : IServiceTopologyTransform
     {
         private readonly ILog log;

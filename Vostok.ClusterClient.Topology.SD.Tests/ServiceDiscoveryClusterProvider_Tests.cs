@@ -36,8 +36,7 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             serviceLocator = Substitute.For<IServiceLocator>();
             serviceLocator.Locate(environment, application).Returns(_ => topology);
 
-            var settings = new ServiceDiscoveryClusterProviderSettings {ServiceTopologyTransform = new DirectTransform()};
-            provider = new ServiceDiscoveryClusterProvider(serviceLocator, environment, application, settings, log);
+            provider = new ServiceDiscoveryClusterProvider(serviceLocator, environment, application, log);
 
             blacklist = null;
         }

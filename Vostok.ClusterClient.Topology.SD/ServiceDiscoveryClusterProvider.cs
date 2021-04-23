@@ -13,7 +13,7 @@ using Vostok.ServiceDiscovery.Extensions;
 namespace Vostok.Clusterclient.Topology.SD
 {
     /// <summary>
-    /// An implementation of <see cref="IClusterProvider"/> that fetches topology from ServiceDiscovery.
+    /// An implementation of <see cref="IClusterProvider" /> that fetches topology from ServiceDiscovery.
     /// </summary>
     [PublicAPI]
     public class ServiceDiscoveryClusterProvider : IClusterProvider
@@ -24,9 +24,9 @@ namespace Vostok.Clusterclient.Topology.SD
         private readonly string environment;
         private readonly string application;
         private readonly ILog log;
-        private volatile Uri[] resolvedReplicas;
 
         private readonly CachingTransform<IServiceTopology, Uri[]> transform;
+        private volatile Uri[] resolvedReplicas;
         private ServiceDiscoveryClusterProviderSettings settings;
 
         public ServiceDiscoveryClusterProvider([NotNull] IServiceLocator serviceLocator, [NotNull] string environment, [NotNull] string application, [CanBeNull] ILog log)
@@ -62,7 +62,7 @@ namespace Vostok.Clusterclient.Topology.SD
                 return null;
             }
 
-            var replicas = settings.ServiceTopologyTransform.Transform(topology)
+            var replicas = (settings.ServiceTopologyTransform?.Transform(topology) ?? topology.Replicas)
                 .Except(topology.Properties.GetBlacklist(), ReplicaComparer.Instance)
                 .ToArray();
 

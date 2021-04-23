@@ -5,6 +5,11 @@ using Vostok.ServiceDiscovery.Abstractions;
 
 namespace Vostok.Clusterclient.Topology.SD.ReplicasTransforms
 {
+    /// <summary>
+    /// By implementing this interface, you can transform replica set from SD.
+    /// For example, this is a good place to implement caching.
+    /// </summary>
+    [PublicAPI]
     public interface IServiceTopologyTransform
     {
         [NotNull]

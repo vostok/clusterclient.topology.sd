@@ -1,5 +1,5 @@
 ﻿using JetBrains.Annotations;
-using Vostok.Clusterclient.Topology.SD.ReplicasTransforms;
+using Vostok.Clusterclient.Topology.SD.ServiceTopologyTransforms;
 
 namespace Vostok.Clusterclient.Topology.SD
 {

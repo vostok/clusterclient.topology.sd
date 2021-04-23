@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using Vostok.Logging.Abstractions;
 using Vostok.ServiceDiscovery.Abstractions;
 
-namespace Vostok.Clusterclient.Topology.SD.ReplicasTransforms
+namespace Vostok.Clusterclient.Topology.SD.ServiceTopologyTransforms
 {
     [PublicAPI]
     public class KeepLastNonEmptyTopologyTransform : IServiceTopologyTransform

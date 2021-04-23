@@ -4,7 +4,7 @@ using System.Linq;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
-using Vostok.Clusterclient.Topology.SD.ReplicasTransforms;
+using Vostok.Clusterclient.Topology.SD.ServiceTopologyTransforms;
 using Vostok.Logging.Abstractions;
 using Vostok.Logging.Console;
 using Vostok.ServiceDiscovery.Abstractions;

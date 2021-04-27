@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using Vostok.Commons.Helpers.Topology;
 using Vostok.ServiceDiscovery.Abstractions;
 
-namespace Vostok.Clusterclient.Topology.SD.ServiceTopologyTransforms
+namespace Vostok.Clusterclient.Topology.SD.Transforms
 {
     [PublicAPI]
     public class NeverForgetReplicasTransform : IServiceTopologyTransform

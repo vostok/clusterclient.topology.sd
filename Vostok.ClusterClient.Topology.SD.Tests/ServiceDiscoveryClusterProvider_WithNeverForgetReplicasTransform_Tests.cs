@@ -118,8 +118,6 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             provider.GetCluster().Should().BeEquivalentTo(new[] {r1}.Cast<object>());
         }
 
-        //(deniaa): This test not pass check. I believe that fqdn replica should replace no-fqdn one. But the implementation will be expensive on the CPU..
-        [Explicit]
         [Test]
         public void Should_correct_merge_fqdn_and_nofqdn_replicas_and_replace_nofqnd_to_fqdn_one()
         {

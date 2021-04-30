@@ -47,7 +47,7 @@ namespace Vostok.Clusterclient.Topology.SD
             this.settings = settings;
             this.log = log ?? LogProvider.Get();
 
-            transform = new CachingTransform<IServiceTopology, Uri[]>(ParseReplicas);
+            transform = new CachingTransform<IServiceTopology, Uri[]>(ParseReplicas, preventParallelProcessing: true);
         }
 
         public IList<Uri> GetCluster()

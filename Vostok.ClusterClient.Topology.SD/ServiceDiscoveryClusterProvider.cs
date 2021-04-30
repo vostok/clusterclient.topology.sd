@@ -20,6 +20,7 @@ namespace Vostok.Clusterclient.Topology.SD
     {
         private static readonly IEqualityComparer<IReadOnlyList<Uri>> ReplicaListComparer = new ListComparer<Uri>(ReplicaComparer.Instance);
 
+        private readonly ServiceDiscoveryClusterProviderSettings settings;
         private readonly IServiceLocator serviceLocator;
         private readonly string environment;
         private readonly string application;
@@ -27,7 +28,6 @@ namespace Vostok.Clusterclient.Topology.SD
 
         private readonly CachingTransform<IServiceTopology, Uri[]> transform;
         private volatile Uri[] resolvedReplicas;
-        private ServiceDiscoveryClusterProviderSettings settings;
 
         public ServiceDiscoveryClusterProvider([NotNull] IServiceLocator serviceLocator, [NotNull] string environment, [NotNull] string application, [CanBeNull] ILog log)
             : this(serviceLocator, environment, application, new ServiceDiscoveryClusterProviderSettings(), log)

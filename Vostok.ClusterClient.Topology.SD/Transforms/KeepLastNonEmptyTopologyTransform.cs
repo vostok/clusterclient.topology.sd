@@ -4,13 +4,13 @@ using JetBrains.Annotations;
 using Vostok.Logging.Abstractions;
 using Vostok.ServiceDiscovery.Abstractions;
 
-namespace Vostok.Clusterclient.Topology.SD.ServiceTopologyTransforms
+namespace Vostok.Clusterclient.Topology.SD.Transforms
 {
     [PublicAPI]
     public class KeepLastNonEmptyTopologyTransform : IServiceTopologyTransform
     {
         private readonly ILog log;
-        private IReadOnlyList<Uri> lastSeenReplicas;
+        private volatile IReadOnlyList<Uri> lastSeenReplicas;
 
         public KeepLastNonEmptyTopologyTransform(ILog log)
         {

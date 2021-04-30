@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Vostok.ServiceDiscovery.Abstractions;
 
-namespace Vostok.Clusterclient.Topology.SD.ServiceTopologyTransforms
+namespace Vostok.Clusterclient.Topology.SD.Transforms
 {
     /// <summary>
     /// By implementing this interface, you can transform replica set from SD.

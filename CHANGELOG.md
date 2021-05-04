@@ -1,3 +1,6 @@
+## 0.1.6 (04-05-2020):
+
+Add IServiceTopologyTransform to extend topology transform from ZK to Uris list.
 ## 0.1.5 (20-10-2020):
 
 Added `ForcedSdEnvironmentClusterClient`.

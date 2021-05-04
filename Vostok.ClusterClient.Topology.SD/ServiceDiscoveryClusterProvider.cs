@@ -13,29 +13,41 @@ using Vostok.ServiceDiscovery.Extensions;
 namespace Vostok.Clusterclient.Topology.SD
 {
     /// <summary>
-    /// An implementation of <see cref="IClusterProvider"/> that fetches topology from ServiceDiscovery.
+    /// An implementation of <see cref="IClusterProvider" /> that fetches topology from ServiceDiscovery.
     /// </summary>
     [PublicAPI]
     public class ServiceDiscoveryClusterProvider : IClusterProvider
     {
         private static readonly IEqualityComparer<IReadOnlyList<Uri>> ReplicaListComparer = new ListComparer<Uri>(ReplicaComparer.Instance);
 
+        private readonly ServiceDiscoveryClusterProviderSettings settings;
         private readonly IServiceLocator serviceLocator;
         private readonly string environment;
         private readonly string application;
         private readonly ILog log;
-        private volatile Uri[] resolvedReplicas;
 
         private readonly CachingTransform<IServiceTopology, Uri[]> transform;
+        private volatile Uri[] resolvedReplicas;
 
         public ServiceDiscoveryClusterProvider([NotNull] IServiceLocator serviceLocator, [NotNull] string environment, [NotNull] string application, [CanBeNull] ILog log)
+            : this(serviceLocator, environment, application, new ServiceDiscoveryClusterProviderSettings(), log)
+        {
+        }
+
+        public ServiceDiscoveryClusterProvider(
+            [NotNull] IServiceLocator serviceLocator,
+            [NotNull] string environment,
+            [NotNull] string application,
+            [NotNull] ServiceDiscoveryClusterProviderSettings settings,
+            [CanBeNull] ILog log)
         {
             this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
             this.environment = environment ?? throw new ArgumentNullException(nameof(environment));
             this.application = application ?? throw new ArgumentNullException(nameof(application));
+            this.settings = settings;
             this.log = log ?? LogProvider.Get();
 
-            transform = new CachingTransform<IServiceTopology, Uri[]>(ParseReplicas);
+            transform = new CachingTransform<IServiceTopology, Uri[]>(ParseReplicas, preventParallelProcessing: true);
         }
 
         public IList<Uri> GetCluster()
@@ -50,9 +62,8 @@ namespace Vostok.Clusterclient.Topology.SD
                 return null;
             }
 
-            var blacklist = topology.Properties.GetBlacklist();
-            var replicas = topology.Replicas
-                .Except(blacklist, ReplicaComparer.Instance)
+            var replicas = (settings.ServiceTopologyTransform?.Transform(topology) ?? topology.Replicas)
+                .Except(topology.Properties.GetBlacklist(), ReplicaComparer.Instance)
                 .ToArray();
 
             if (!ReplicaListComparer.Equals(resolvedReplicas, replicas))

@@ -106,20 +106,7 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         }
 
         [Test]
-        public void Should_correct_merge_fqdn_and_nofqdn_replicas()
-        {
-            var r1 = new Uri("http://razr02.domain.whatever:80");
-            var r2 = new Uri("http://razr02:80");
-
-            topology = ServiceTopology.Build(new[] {r1}, null);
-            provider.GetCluster().Should().BeEquivalentTo(new[] {r1}.Cast<object>());
-
-            topology = ServiceTopology.Build(new[] {r2}, null);
-            provider.GetCluster().Should().BeEquivalentTo(new[] {r1}.Cast<object>());
-        }
-
-        [Test]
-        public void Should_correct_merge_fqdn_and_nofqdn_replicas_and_replace_nofqnd_to_fqdn_one()
+        public void Should_correct_merge_fqdn_and_nofqdn_replicas_and_replace_by_the_last_one_it_saw()
         {
             var r1 = new Uri("http://razr02:80");
             var r2 = new Uri("http://razr02.domain.whatever:80");

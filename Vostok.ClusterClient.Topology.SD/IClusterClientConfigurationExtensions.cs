@@ -21,5 +21,20 @@ namespace Vostok.Clusterclient.Topology.SD
             self.TargetEnvironment = environment;
             self.TargetServiceName = application;
         }
+
+        /// <summary>
+        /// Sets up an <see cref="IClusterProvider"/> that will fetch replicas of <paramref name="application"/> in <paramref name="environment"/> from ServiceDiscovery with given <paramref name="serviceLocator"/> and <paramref name="settings"/>.
+        /// </summary>
+        public static void SetupServiceDiscoveryTopology(
+            [NotNull] this IClusterClientConfiguration self,
+            [NotNull] IServiceLocator serviceLocator,
+            [NotNull] string environment,
+            [NotNull] string application,
+            [NotNull] ServiceDiscoveryClusterProviderSettings settings)
+        {
+            self.ClusterProvider = new ServiceDiscoveryClusterProvider(serviceLocator, environment, application, settings, self.Log);
+            self.TargetEnvironment = environment;
+            self.TargetServiceName = application;
+        }
     }
 }

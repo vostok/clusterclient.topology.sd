@@ -1,3 +1,11 @@
+## 0.1.8 (04-05-2021):
+
+IClusterClientConfigurationExtensions: added an extension with ServiceDiscoveryClusterProviderSettings.
+
+## 0.1.7 (04-05-2021):
+
+Add IServiceTopologyTransform to extend topology transform from ZK to Uris list.
+
 ## 0.1.5 (20-10-2020):
 
 Added `ForcedSdEnvironmentClusterClient`.

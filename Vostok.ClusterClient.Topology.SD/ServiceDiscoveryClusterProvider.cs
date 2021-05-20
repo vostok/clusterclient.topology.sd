@@ -62,7 +62,10 @@ namespace Vostok.Clusterclient.Topology.SD
                 return null;
             }
 
-            var replicas = (settings.ServiceTopologyTransform?.Transform(topology) ?? topology.Replicas)
+            var aliveReplicas = settings.ServiceTopologyTransform?.Transform(topology) ?? topology.Replicas;
+            aliveReplicas = AdvanceReplicasByDesiredTopology(topology, aliveReplicas);
+
+            var replicas = aliveReplicas
                 .Except(topology.Properties.GetBlacklist(), ReplicaComparer.Instance)
                 .ToArray();
 
@@ -73,6 +76,43 @@ namespace Vostok.Clusterclient.Topology.SD
             }
 
             return replicas;
+        }
+
+        private IEnumerable<Uri> AdvanceReplicasByDesiredTopology(IServiceTopology topology, IEnumerable<Uri> aliveReplicas)
+        {
+            var desiredTopologySettings = settings.DesiredTopologySettings;
+            if (desiredTopologySettings != null && desiredTopologySettings.Enabled)
+                aliveReplicas = MergeWithDesiredTopology(aliveReplicas, new HashSet<Uri>(topology.Properties.GetDesiredTopology(), ReplicaComparer.Instance), desiredTopologySettings);
+            return aliveReplicas;
+        }
+
+        private IEnumerable<Uri> MergeWithDesiredTopology(IEnumerable<Uri> aliveReplicas, HashSet<Uri> desiredTopology, DesiredTopologySettings desiredTopologySettings)
+        {
+            if (desiredTopology == null || desiredTopology.Count == 0)
+                return aliveReplicas;
+
+            if (!(aliveReplicas is IReadOnlyCollection<Uri> aliveReplicasCollection))
+                aliveReplicasCollection = aliveReplicas.ToList();
+
+            var aliveInDesired = aliveReplicasCollection.Count(desiredTopology.Contains);
+            if (aliveReplicasCollection.Count <= desiredTopologySettings.MaxReplicasCountToAlwaysAdvanceReplicasByDesiredTopology
+                || aliveInDesired < desiredTopology.Count * desiredTopologySettings.MinDesiredTopologyPresenceAmongAliveToAdvance)
+            {
+                //TODO у нас так-то задан порядок. Можно мержить эффективнее, через расширение ReplicaListComparer
+                return UnionTopologies(desiredTopology, aliveReplicasCollection);
+            }
+
+            return aliveReplicasCollection;
+        }
+
+        private static IEnumerable<Uri> UnionTopologies(HashSet<Uri> desiredTopology, IReadOnlyCollection<Uri> aliveReplicasCollection)
+        {
+            foreach (var uri in desiredTopology)
+                yield return uri;
+
+            foreach (var uri in aliveReplicasCollection)
+                if (!desiredTopology.Contains(uri))
+                    yield return uri;
         }
 
         #region Logging

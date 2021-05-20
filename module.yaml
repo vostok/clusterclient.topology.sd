@@ -17,7 +17,8 @@ notests *default:
     - vostok.devtools
     - vostok.logging.abstractions
     - vostok.servicediscovery.abstractions
-    - vostok.servicediscovery.extensions
+    - vostok.servicediscovery.extensions@desired-topology
+
 full-build > notests:
   deps:
     - vostok.logging.console

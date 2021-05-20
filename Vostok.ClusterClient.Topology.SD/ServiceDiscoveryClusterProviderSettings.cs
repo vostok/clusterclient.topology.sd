@@ -12,5 +12,17 @@ namespace Vostok.Clusterclient.Topology.SD
         /// </summary>
         [CanBeNull]
         public IServiceTopologyTransform ServiceTopologyTransform { get; set; }
+
+        [CanBeNull]
+        public DesiredTopologySettings DesiredTopologySettings { get; set; } = new DesiredTopologySettings();
+    }
+
+    public class DesiredTopologySettings
+    {
+        public bool Enabled = true;
+
+        public int MaxReplicasCountToAlwaysAdvanceReplicasByDesiredTopology = 2;
+
+        public double MinDesiredTopologyPresenceAmongAliveToAdvance = 2d / 3;
     }
 }

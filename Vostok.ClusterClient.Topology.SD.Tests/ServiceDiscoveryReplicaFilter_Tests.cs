@@ -7,6 +7,8 @@ using NSubstitute;
 using NUnit.Framework;
 using Vostok.Clusterclient.Core.Model;
 using Vostok.Clusterclient.Core.Modules;
+using Vostok.Clusterclient.Core.Ordering;
+using Vostok.Clusterclient.Core.Topology;
 using Vostok.Clusterclient.Core.Transport;
 using Vostok.Clusterclient.Topology.SD.Helpers;
 using Vostok.Logging.Abstractions;
@@ -87,7 +89,7 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         public void Should_filter_some_replicas_when_they_has_no_tags()
         {
             var applicationInfo = new ApplicationInfo(environment, application, null);
-            topology = ServiceTopology.Build(replicas, applicationInfo.Properties.SetReplicaTags(replica1.ToString(), new TagCollection{"tag1"}));
+            topology = ServiceTopology.Build(replicas, applicationInfo.Properties.SetPersistentReplicaTags(replica1.ToString(), new TagCollection{"tag1"}));
             filter.Filter(replicas, context).Should().BeEquivalentTo(replica1);
         }
 
@@ -95,14 +97,14 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
         public void Should_filter_new_replicas_from_new_topology()
         {
             var applicationInfo = new ApplicationInfo(environment, application, null);
-            topology = ServiceTopology.Build(replicas, applicationInfo.Properties.SetReplicaTags(replica1.ToString(), new TagCollection{"tag1"}));
+            topology = ServiceTopology.Build(replicas, applicationInfo.Properties.SetPersistentReplicaTags(replica1.ToString(), new TagCollection{"tag1"}));
             filter.Filter(replicas, context).Should().BeEquivalentTo(replica1);
             
             topology = ServiceTopology.Build(
                 replicas, 
                 applicationInfo.Properties
-                    .SetReplicaTags(replica1.ToString(), new TagCollection{"tag2"})
-                    .SetReplicaTags(replica2.ToString(), new TagCollection{"tag1"}));
+                    .SetPersistentReplicaTags(replica1.ToString(), new TagCollection{"tag2"})
+                    .SetPersistentReplicaTags(replica2.ToString(), new TagCollection{"tag1"}));
             filter.Filter(replicas, context).Should().BeEquivalentTo(replica2);
         }
 
@@ -116,8 +118,8 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             topology = ServiceTopology.Build(
                 new []{replica1, replica2Fqdn, replica3}, 
                 applicationInfo.Properties
-                    .SetReplicaTags(replica1.ToString(), new TagCollection{"tag1"})
-                    .SetReplicaTags(replica2Fqdn.ToString(), new TagCollection{"tag1"}));
+                    .SetPersistentReplicaTags(replica1.ToString(), new TagCollection{"tag1"})
+                    .SetPersistentReplicaTags(replica2Fqdn.ToString(), new TagCollection{"tag1"}));
             filter.Filter(new List<Uri>{replica1Fqdn, replica2, replica3}, context).Should().BeEquivalentTo(replica1Fqdn, replica2);
         }
 
@@ -131,11 +133,11 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             topology = ServiceTopology.Build(
                 new []{replicaFqdn},
                 applicationInfo.Properties
-                    .SetReplicaTags(replicaNoFqdn.ToString(), new TagCollection{"tag2"})
-                    .SetReplicaTags(replicaFqdn.ToString(), new TagCollection{"tag1"}));
+                    .SetPersistentReplicaTags(replicaNoFqdn.ToString(), new TagCollection{"tag2"})
+                    .SetPersistentReplicaTags(replicaFqdn.ToString(), new TagCollection{"tag1"}));
             
-            filter.Filter(new List<Uri>{replicaFqdn}, context).Should().BeEmpty();
-            filter.Filter(new List<Uri>{replicaNoFqdn}, context).Should().BeEmpty();
+            filter.Filter(new List<Uri>{replicaFqdn}, context).Should().BeEquivalentTo(replicaFqdn);
+            filter.Filter(new List<Uri>{replicaNoFqdn}, context).Should().BeEquivalentTo(replicaNoFqdn);
         }
 
         [Test]
@@ -145,9 +147,9 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             topology = ServiceTopology.Build(
                 new []{replica1}, 
                 applicationInfo.Properties
-                    .SetReplicaTags(replica1.ToString(), new TagCollection{"tag1"})
-                    .SetReplicaTags(replica2.ToString(), new TagCollection{"tag1"})
-                    .SetReplicaTags(replica3.ToString(), new TagCollection{"tag1"}));
+                    .SetPersistentReplicaTags(replica1.ToString(), new TagCollection{"tag1"})
+                    .SetPersistentReplicaTags(replica2.ToString(), new TagCollection{"tag1"})
+                    .SetPersistentReplicaTags(replica3.ToString(), new TagCollection{"tag1"}));
             
             filter.Filter(new List<Uri>{replica1, replica2, replica3}, context).Should().BeEquivalentTo(replica1);
         }
@@ -159,9 +161,9 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             topology = ServiceTopology.Build(
                 new []{replica1, replica2, replica3}, 
                 applicationInfo.Properties
-                    .SetReplicaTags(replica1.ToString(), new TagCollection{"tag1"})
-                    .SetReplicaTags(replica2.ToString(), new TagCollection{"tag1"})
-                    .SetReplicaTags(replica3.ToString(), new TagCollection{"tag1"}));
+                    .SetPersistentReplicaTags(replica1.ToString(), new TagCollection{"tag1"})
+                    .SetPersistentReplicaTags(replica2.ToString(), new TagCollection{"tag1"})
+                    .SetPersistentReplicaTags(replica3.ToString(), new TagCollection{"tag1"}));
             
             filter.Filter(new List<Uri>{replica1, replica2}, context).Should().BeEquivalentTo(replica1, replica2);
         }
@@ -184,13 +186,21 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
                 Parameters = requestParameters;
             }
 
+            public void ResetReplicaResults()
+            {
+                throw new NotImplementedException();
+            }
+
             public Request Request { get; set; }
             public RequestParameters Parameters { get; set; }
             public IRequestTimeBudget Budget { get; }
             public ILog Log { get; }
+            public IClusterProvider ClusterProvider { get; set; }
+            public IReplicaOrdering ReplicaOrdering { get; set; }
             public ITransport Transport { get; set; }
             public CancellationToken CancellationToken { get; }
             public int MaximumReplicasToUse { get; set; }
+            public int ConnectionAttempts { get; set; }
             public string ClientApplicationName { get; }
         }
     }

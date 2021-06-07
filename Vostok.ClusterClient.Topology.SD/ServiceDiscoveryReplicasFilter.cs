@@ -12,6 +12,7 @@ using Vostok.Logging.Abstractions;
 using Vostok.ServiceDiscovery.Abstractions;
 using Vostok.ServiceDiscovery.Abstractions.Models;
 using Vostok.ServiceDiscovery.Extensions;
+using Vostok.ServiceDiscovery.Extensions.TagFilters;
 
 namespace Vostok.Clusterclient.Topology.SD
 {
@@ -26,15 +27,20 @@ namespace Vostok.Clusterclient.Topology.SD
         private readonly string environment;
         private readonly string application;
         private readonly ILog log;
+        private readonly Func<TagCollection, bool> globalReplicaMatchesFunc;
 
         private readonly CachingTransform<IServiceTopology, (IReadOnlyList<Uri>, IReadOnlyDictionary<Uri, TagCollection>)> transform;
 
-        public ServiceDiscoveryReplicasFilter([NotNull] IServiceLocator serviceLocator, [NotNull] string environment, [NotNull] string application, [CanBeNull] ILog log)
+        public ServiceDiscoveryReplicasFilter([NotNull] IServiceLocator serviceLocator, [NotNull] string environment, [NotNull] string application, [CanBeNull] ILog log, ITagFilter tagFilter)
+            : this(serviceLocator, environment, application, log, tagFilter.Matches) {}
+        
+        public ServiceDiscoveryReplicasFilter([NotNull] IServiceLocator serviceLocator, [NotNull] string environment, [NotNull] string application, [CanBeNull] ILog log, Func<TagCollection, bool> replicaMatchesFunc = null)
         {
             this.serviceLocator = serviceLocator ?? throw new ArgumentNullException(nameof(serviceLocator));
             this.environment = environment ?? throw new ArgumentNullException(nameof(environment));
             this.application = application ?? throw new ArgumentNullException(nameof(application));
             this.log = log ?? LogProvider.Get();
+            globalReplicaMatchesFunc = replicaMatchesFunc;
 
             transform = new CachingTransform<IServiceTopology, (IReadOnlyList<Uri>, IReadOnlyDictionary<Uri, TagCollection>)>(ParseTags);
         }
@@ -47,7 +53,7 @@ namespace Vostok.Clusterclient.Topology.SD
         /// </summary>
         public IEnumerable<Uri> Filter(IEnumerable<Uri> replicas, IRequestContext requestContext)
         {
-            var replicaMatchesFunc = requestContext.Parameters.GetTagsFilter();
+            var replicaMatchesFunc = requestContext.Parameters.GetTagsFilter() ?? globalReplicaMatchesFunc;
             if (replicaMatchesFunc == null)
                 return replicas;
 

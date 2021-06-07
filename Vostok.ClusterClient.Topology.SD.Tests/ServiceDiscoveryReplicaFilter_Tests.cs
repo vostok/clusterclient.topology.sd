@@ -16,6 +16,7 @@ using Vostok.Logging.Console;
 using Vostok.ServiceDiscovery.Abstractions;
 using Vostok.ServiceDiscovery.Abstractions.Models;
 using Vostok.ServiceDiscovery.Extensions;
+using Vostok.ServiceDiscovery.Extensions.TagFilters;
 
 namespace Vostok.Clusterclient.Topology.SD.Tests
 {
@@ -91,6 +92,37 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             var applicationInfo = new ApplicationInfo(environment, application, null);
             topology = ServiceTopology.Build(replicas, applicationInfo.Properties.SetPersistentReplicaTags(replica1.ToString(), new TagCollection{"tag1"}));
             filter.Filter(replicas, context).Should().BeEquivalentTo(replica1);
+        }
+
+        [Test]
+        public void Should_filter_some_replicas_when_they_has_no_tags_and_filter_was_set_in_constructor()
+        {
+            var applicationInfo = new ApplicationInfo(environment, application, null);
+            topology = ServiceTopology.Build(replicas, applicationInfo.Properties.SetPersistentReplicaTags(replica1.ToString(), new TagCollection{"tag1"}));
+            var filter1 = new ServiceDiscoveryReplicasFilter(serviceLocator, environment, application, log, collection => collection.ContainsKey("tag1"));
+            var newContext = new FakeContext(new RequestParameters());
+            
+            filter1.Filter(replicas, newContext).Should().BeEquivalentTo(replica1);
+            
+            var filter2 = new ServiceDiscoveryReplicasFilter(serviceLocator, environment, application, log, new ContainsTagFilter("tag1"));
+            filter2.Filter(replicas, newContext).Should().BeEquivalentTo(replica1);
+            
+            var filter3 = new ServiceDiscoveryReplicasFilter(serviceLocator, environment, application, log, TagFilterExpressionHelpers.Parse("tag1"));
+            filter3.Filter(replicas, newContext).Should().BeEquivalentTo(replica1);
+        }
+
+        [Test]
+        public void Should_override_replicaMatchesFunc_from_constructor_when_defined_in_request()
+        {
+            var applicationInfo = new ApplicationInfo(environment, application, null);
+            topology = ServiceTopology.Build(replicas, applicationInfo.Properties.SetPersistentReplicaTags(replica1.ToString(), new TagCollection{"tag1"}));
+            var filter1 = new ServiceDiscoveryReplicasFilter(serviceLocator, environment, application, log, collection => collection.ContainsKey("tag1"));
+            var context1 = new FakeContext(new RequestParameters());
+            
+            filter1.Filter(replicas, context1).Should().BeEquivalentTo(replica1);
+            
+            var context2 = new FakeContext(new RequestParameters().SetTagsFilter(collection => collection.ContainsKey("tag2")));
+            filter1.Filter(replicas, context2).Should().BeEmpty();
         }
 
         [Test]

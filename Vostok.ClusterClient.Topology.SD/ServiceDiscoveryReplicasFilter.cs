@@ -29,7 +29,8 @@ namespace Vostok.Clusterclient.Topology.SD
         private readonly ILog log;
         private readonly Func<TagCollection, bool> globalReplicaMatchesFunc;
 
-        private readonly CachingTransform<IServiceTopology, (IReadOnlyList<Uri>, IReadOnlyDictionary<Uri, TagCollection>)> transform;
+        private readonly CachingTransform<IServiceTopology, (IReadOnlyList<Uri>, IReadOnlyDictionary<Uri, TagCollection>)> parseTagsTransform;
+        private readonly CachingTransform<(IEnumerable<Uri>, IReadOnlyList<Uri>), IEnumerable<Uri>> intersectReplicasTransform;
 
         public ServiceDiscoveryReplicasFilter([NotNull] IServiceLocator serviceLocator, [NotNull] string environment, [NotNull] string application, [CanBeNull] ILog log, ITagFilter tagFilter)
             : this(serviceLocator, environment, application, log, tagFilter.Matches) {}
@@ -42,7 +43,8 @@ namespace Vostok.Clusterclient.Topology.SD
             this.log = log ?? LogProvider.Get();
             globalReplicaMatchesFunc = replicaMatchesFunc;
 
-            transform = new CachingTransform<IServiceTopology, (IReadOnlyList<Uri>, IReadOnlyDictionary<Uri, TagCollection>)>(ParseTags);
+            parseTagsTransform = new CachingTransform<IServiceTopology, (IReadOnlyList<Uri>, IReadOnlyDictionary<Uri, TagCollection>)>(ParseTags);
+            intersectReplicasTransform = new CachingTransform<(IEnumerable<Uri>, IReadOnlyList<Uri>), IEnumerable<Uri>>(IntersectReplicas);
         }
 
         /// <summary>
@@ -57,11 +59,12 @@ namespace Vostok.Clusterclient.Topology.SD
             if (replicaMatchesFunc == null)
                 return replicas;
 
-            var (slReplicas, tags) = transform.Get(serviceLocator.Locate(environment, application));
+            var (slReplicas, tags) = parseTagsTransform.Get(serviceLocator.Locate(environment, application));
             if (slReplicas == null || tags == null)
                 return replicas;
 
-            return FilterReplicas(replicas.Intersect(slReplicas, ReplicaComparer.Instance), replicaMatchesFunc, tags);
+            var intersectedReplicas = intersectReplicasTransform.Get((replicas, slReplicas));
+            return FilterReplicas(intersectedReplicas, replicaMatchesFunc, tags);
         }
 
         private IEnumerable<Uri> FilterReplicas(IEnumerable<Uri> replicas, Func<TagCollection, bool> replicaMatchesFunc, IReadOnlyDictionary<Uri, TagCollection> tags)
@@ -84,6 +87,9 @@ namespace Vostok.Clusterclient.Topology.SD
 
             return (serviceTopology.Replicas, serviceTopology.Properties.GetTags());
         }
+        
+        private IEnumerable<Uri> IntersectReplicas((IEnumerable<Uri>, IReadOnlyList<Uri>) replicasTuple)
+            => replicasTuple.Item1.Intersect(replicasTuple.Item2, ReplicaComparer.Instance);
 
         #region Logging
 

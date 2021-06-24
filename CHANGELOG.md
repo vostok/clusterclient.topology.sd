@@ -1,6 +1,6 @@
 ## 0.1.9 (24-06-2021):
 
-Added `ServiceDiscoveryReplicasFilter` and request paraemter helpers to set tag filters. 
+Added `ServiceDiscoveryReplicasFilter` and request parameter helpers to set tag filters. 
 
 ## 0.1.8 (04-05-2021):
 

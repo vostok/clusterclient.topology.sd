@@ -11,13 +11,13 @@ notests *default:
 
   deps:
     - vostok.context
-    - vostok.clusterclient.core@replica-filters
+    - vostok.clusterclient.core
     - vostok.commons.collections/src
     - vostok.commons.helpers/src
     - vostok.devtools
     - vostok.logging.abstractions
-    - vostok.servicediscovery.abstractions@borovskyav\/sd-tags
-    - vostok.servicediscovery.extensions@borovskyav\/sd-tags-filters
+    - vostok.servicediscovery.abstractions
+    - vostok.servicediscovery.extensions
 full-build > notests:
   deps:
     - vostok.logging.console

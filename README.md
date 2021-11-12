@@ -1,6 +1,6 @@
 # Vostok.ClusterClient.Topology.SD
 
-[![Build status](https://ci.appveyor.com/api/projects/status/github/vostok/clusterclient.topology.sd?svg=true&branch=master)](https://ci.appveyor.com/project/vostok/clusterclient-topology-sd/branch/master)
+[![Build & Test & Publish](https://github.com/vostok/clusterclient.topology.sd/actions/workflows/ci.yml/badge.svg)](https://github.com/vostok/clusterclient.topology.sd/actions/workflows/ci.yml)
 [![NuGet](https://img.shields.io/nuget/v/Vostok.ClusterClient.Topology.SD.svg)](https://www.nuget.org/packages/Vostok.ClusterClient.Topology.SD)
 
 An implementation of IClusterProvider based on ServiceDiscovery.

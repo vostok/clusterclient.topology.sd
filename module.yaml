@@ -20,6 +20,8 @@ notests *default:
     - vostok.servicediscovery.extensions
 full-build > notests:
   deps:
+    - -vostok.devtools
+    - vostok.devtools@with-net6.0
     - vostok.logging.console
 
   build:

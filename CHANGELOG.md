@@ -1,3 +1,7 @@
+## 0.1.10 (06-12-2021):
+
+Added `net6.0` target.
+
 ## 0.1.9 (24-06-2021):
 
 Added `ServiceDiscoveryReplicasFilter` and request parameter helpers to set tag filters. 

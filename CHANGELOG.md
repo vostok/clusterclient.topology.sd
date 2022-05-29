@@ -1,3 +1,7 @@
+## 0.1.12 (29-05-2022):
+
+Added `AugmentWithHostingTopologyTransform` based on new `HostingTopology` extension property.
+
 ## 0.1.11 (06-12-2021):
 
 Added `net6.0` target.

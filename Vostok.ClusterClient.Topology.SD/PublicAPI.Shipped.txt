@@ -1,0 +1,43 @@
+static Vostok.Clusterclient.Topology.SD.Helpers.RequestParametersExtensions.SetTagsFilter(this Vostok.Clusterclient.Core.Model.RequestParameters requestParameters, System.Func<Vostok.ServiceDiscovery.Abstractions.Models.TagCollection, bool> replicaMatchesFunc) -> Vostok.Clusterclient.Core.Model.RequestParameters
+static Vostok.Clusterclient.Topology.SD.Helpers.RequestParametersExtensions.SetTagsFilter(this Vostok.Clusterclient.Core.Model.RequestParameters requestParameters, Vostok.ServiceDiscovery.Extensions.TagFilters.ITagFilter tagFilter) -> Vostok.Clusterclient.Core.Model.RequestParameters
+static Vostok.Clusterclient.Topology.SD.IClusterClientConfigurationExtensions.SetupServiceDiscoveryTopology(this Vostok.Clusterclient.Core.IClusterClientConfiguration self, Vostok.ServiceDiscovery.Abstractions.IServiceLocator serviceLocator, string environment, string application) -> void
+static Vostok.Clusterclient.Topology.SD.IClusterClientConfigurationExtensions.SetupServiceDiscoveryTopology(this Vostok.Clusterclient.Core.IClusterClientConfiguration self, Vostok.ServiceDiscovery.Abstractions.IServiceLocator serviceLocator, string environment, string application, Vostok.Clusterclient.Topology.SD.ServiceDiscoveryClusterProviderSettings settings) -> void
+Vostok.Clusterclient.Topology.SD.ForcedSdEnvironmentClusterClient
+Vostok.Clusterclient.Topology.SD.ForcedSdEnvironmentClusterClient.ForcedSdEnvironmentClusterClient(Vostok.Clusterclient.Topology.SD.ForcedSdEnvironmentClusterClientSettings settings, Vostok.Logging.Abstractions.ILog log) -> void
+Vostok.Clusterclient.Topology.SD.ForcedSdEnvironmentClusterClient.SendAsync(Vostok.Clusterclient.Core.Model.Request request, Vostok.Clusterclient.Core.Model.RequestParameters parameters = null, System.TimeSpan? timeout = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Vostok.Clusterclient.Core.Model.ClusterResult>
+Vostok.Clusterclient.Topology.SD.ForcedSdEnvironmentClusterClientSettings
+Vostok.Clusterclient.Topology.SD.ForcedSdEnvironmentClusterClientSettings.AdditionalSetup.get -> Vostok.Clusterclient.Core.ClusterClientSetup
+Vostok.Clusterclient.Topology.SD.ForcedSdEnvironmentClusterClientSettings.AdditionalSetup.set -> void
+Vostok.Clusterclient.Topology.SD.ForcedSdEnvironmentClusterClientSettings.Application.get -> string
+Vostok.Clusterclient.Topology.SD.ForcedSdEnvironmentClusterClientSettings.DefaultEnvironment.get -> string
+Vostok.Clusterclient.Topology.SD.ForcedSdEnvironmentClusterClientSettings.ForcedSdEnvironmentClusterClientSettings(Vostok.ServiceDiscovery.Abstractions.IServiceLocator serviceLocator, string application, string defaultEnvironment) -> void
+Vostok.Clusterclient.Topology.SD.ForcedSdEnvironmentClusterClientSettings.ServiceLocator.get -> Vostok.ServiceDiscovery.Abstractions.IServiceLocator
+Vostok.Clusterclient.Topology.SD.Helpers.RequestParametersExtensions
+Vostok.Clusterclient.Topology.SD.IClusterClientConfigurationExtensions
+Vostok.Clusterclient.Topology.SD.ServiceDiscoveryClusterProvider
+Vostok.Clusterclient.Topology.SD.ServiceDiscoveryClusterProvider.GetCluster() -> System.Collections.Generic.IList<System.Uri>
+Vostok.Clusterclient.Topology.SD.ServiceDiscoveryClusterProvider.ServiceDiscoveryClusterProvider(Vostok.ServiceDiscovery.Abstractions.IServiceLocator serviceLocator, string environment, string application, Vostok.Clusterclient.Topology.SD.ServiceDiscoveryClusterProviderSettings settings, Vostok.Logging.Abstractions.ILog log) -> void
+Vostok.Clusterclient.Topology.SD.ServiceDiscoveryClusterProvider.ServiceDiscoveryClusterProvider(Vostok.ServiceDiscovery.Abstractions.IServiceLocator serviceLocator, string environment, string application, Vostok.Logging.Abstractions.ILog log) -> void
+Vostok.Clusterclient.Topology.SD.ServiceDiscoveryClusterProviderSettings
+Vostok.Clusterclient.Topology.SD.ServiceDiscoveryClusterProviderSettings.ServiceDiscoveryClusterProviderSettings() -> void
+Vostok.Clusterclient.Topology.SD.ServiceDiscoveryClusterProviderSettings.ServiceTopologyTransform.get -> Vostok.Clusterclient.Topology.SD.Transforms.IServiceTopologyTransform
+Vostok.Clusterclient.Topology.SD.ServiceDiscoveryClusterProviderSettings.ServiceTopologyTransform.set -> void
+Vostok.Clusterclient.Topology.SD.ServiceDiscoveryReplicasFilter
+Vostok.Clusterclient.Topology.SD.ServiceDiscoveryReplicasFilter.Filter(System.Collections.Generic.IEnumerable<System.Uri> replicas, Vostok.Clusterclient.Core.Modules.IRequestContext requestContext) -> System.Collections.Generic.IEnumerable<System.Uri>
+Vostok.Clusterclient.Topology.SD.ServiceDiscoveryReplicasFilter.ServiceDiscoveryReplicasFilter(Vostok.ServiceDiscovery.Abstractions.IServiceLocator serviceLocator, string environment, string application, Vostok.Logging.Abstractions.ILog log, System.Func<Vostok.ServiceDiscovery.Abstractions.Models.TagCollection, bool> replicaMatchesFunc = null) -> void
+Vostok.Clusterclient.Topology.SD.ServiceDiscoveryReplicasFilter.ServiceDiscoveryReplicasFilter(Vostok.ServiceDiscovery.Abstractions.IServiceLocator serviceLocator, string environment, string application, Vostok.Logging.Abstractions.ILog log, Vostok.ServiceDiscovery.Extensions.TagFilters.ITagFilter tagFilter) -> void
+Vostok.Clusterclient.Topology.SD.Transforms.AugmentWithHostingTopologyTransform
+Vostok.Clusterclient.Topology.SD.Transforms.AugmentWithHostingTopologyTransform.AcceptableAliveBeaconsRatio.get -> double
+Vostok.Clusterclient.Topology.SD.Transforms.AugmentWithHostingTopologyTransform.AcceptableAliveBeaconsRatio.set -> void
+Vostok.Clusterclient.Topology.SD.Transforms.AugmentWithHostingTopologyTransform.AugmentWithHostingTopologyTransform() -> void
+Vostok.Clusterclient.Topology.SD.Transforms.AugmentWithHostingTopologyTransform.MinCommonReplicasRatio.get -> double
+Vostok.Clusterclient.Topology.SD.Transforms.AugmentWithHostingTopologyTransform.MinCommonReplicasRatio.set -> void
+Vostok.Clusterclient.Topology.SD.Transforms.AugmentWithHostingTopologyTransform.Transform(Vostok.ServiceDiscovery.Abstractions.IServiceTopology topology) -> System.Collections.Generic.IEnumerable<System.Uri>
+Vostok.Clusterclient.Topology.SD.Transforms.IServiceTopologyTransform
+Vostok.Clusterclient.Topology.SD.Transforms.IServiceTopologyTransform.Transform(Vostok.ServiceDiscovery.Abstractions.IServiceTopology topology) -> System.Collections.Generic.IEnumerable<System.Uri>
+Vostok.Clusterclient.Topology.SD.Transforms.KeepLastNonEmptyTopologyTransform
+Vostok.Clusterclient.Topology.SD.Transforms.KeepLastNonEmptyTopologyTransform.KeepLastNonEmptyTopologyTransform(Vostok.Logging.Abstractions.ILog log) -> void
+Vostok.Clusterclient.Topology.SD.Transforms.KeepLastNonEmptyTopologyTransform.Transform(Vostok.ServiceDiscovery.Abstractions.IServiceTopology topology) -> System.Collections.Generic.IEnumerable<System.Uri>
+Vostok.Clusterclient.Topology.SD.Transforms.NeverForgetReplicasTransform
+Vostok.Clusterclient.Topology.SD.Transforms.NeverForgetReplicasTransform.NeverForgetReplicasTransform() -> void
+Vostok.Clusterclient.Topology.SD.Transforms.NeverForgetReplicasTransform.Transform(Vostok.ServiceDiscovery.Abstractions.IServiceTopology topology) -> System.Collections.Generic.IEnumerable<System.Uri>

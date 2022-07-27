@@ -228,6 +228,7 @@ namespace Vostok.Clusterclient.Topology.SD.Tests
             public IRequestTimeBudget Budget { get; }
             public ILog Log { get; }
             public IClusterProvider ClusterProvider { get; set; }
+            public IAsyncClusterProvider AsyncClusterProvider { get; set; }
             public IReplicaOrdering ReplicaOrdering { get; set; }
             public ITransport Transport { get; set; }
             public CancellationToken CancellationToken { get; }

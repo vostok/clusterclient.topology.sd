@@ -1,3 +1,7 @@
+## 0.1.13 (16-12-2024): 
+
+Bump NuGet deps versions
+
 ## 0.1.12 (29-05-2022):
 
 Added `AugmentWithHostingTopologyTransform` based on new `HostingTopology` extension property.
